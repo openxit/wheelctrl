@@ -4,9 +4,9 @@
         xmlns:controls="clr-namespace:G29ControlCenter.Controls"
         xmlns:vm="clr-namespace:G29ControlCenter.ViewModels"
         Title="{Binding Loc.WindowTitle, FallbackValue='WheelCtrl'}"
-        Width="1560"
+        Width="1500"
         Height="880"
-        MinWidth="1320"
+        MinWidth="1260"
         MinHeight="760"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource SurfaceBackgroundBrush}"
@@ -19,932 +19,1051 @@
         <vm:MainViewModel />
     </Window.DataContext>
 
-    <Grid Margin="14,12,14,14">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="210" />
-            <ColumnDefinition Width="12" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
-        <!-- HUB-SEITENLEISTE (Geräteübersicht & Overlay-Schnellzugriff) -->
-        <Border Grid.Column="0" Style="{StaticResource DiagnosticCardStyle}" Padding="10,12">
+        <!-- TOP-NAVIGATIONSLEISTE (wie im Screenshot, ohne Login-Button & ohne Fake-Tabs) -->
+        <Border Grid.Row="0"
+                Background="{DynamicResource SurfaceCardBrush}"
+                BorderBrush="{DynamicResource CardBorderBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="20,6">
             <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
 
-                <!-- Hub Branding -->
-                <StackPanel Grid.Row="0" Margin="4,0,4,14">
-                    <TextBlock Text="{Binding Loc.AppTitle}"
-                               FontSize="18"
-                               FontWeight="Bold"
-                               Foreground="{DynamicResource PrimaryTextBrush}" />
-                    <TextBlock Text="{Binding Loc.AppSubtitle}"
-                               TextWrapping="Wrap"
-                               Margin="0,2,0,0"
-                               Style="{StaticResource SubtleLabelTextStyle}" />
-                </StackPanel>
-
-                <!-- Geräte-Liste -->
-                <TextBlock Grid.Row="1"
-                           Text="{Binding Loc.HubDevicesHeader}"
-                           FontSize="10.5"
-                           FontWeight="SemiBold"
-                           Margin="4,0,4,6"
-                           Style="{StaticResource SubtleLabelTextStyle}" />
-
-                <StackPanel Grid.Row="2">
-                    <!-- Aktives Gerät: G29 Driving Force -->
-                    <Border Background="{DynamicResource SurfaceSubtleBrush}"
-                            BorderBrush="{DynamicResource {x:Static SystemColors.AccentColorBrushKey}}"
-                            BorderThickness="1.5"
+                <!-- Links: Neutrales WheelCtrl-Logo + echte Tabs -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Width="30" Height="30"
                             CornerRadius="6"
-                            Padding="10,9"
-                            Margin="0,0,0,8">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <Ellipse Grid.Column="0"
-                                     Width="9" Height="9"
-                                     VerticalAlignment="Top"
-                                     Margin="0,4,8,0"
-                                     Fill="{Binding DeviceBadgeLevel, Converter={StaticResource BadgeSeverityToDotConverter}}" />
-                            <StackPanel Grid.Column="1">
-                                <TextBlock Text="{Binding Loc.HubPrimaryDeviceName}"
-                                           FontWeight="SemiBold"
-                                           FontSize="13" />
-                                <TextBlock Text="{Binding HubPrimaryDeviceSubtitle}"
-                                           FontSize="11"
-                                           Margin="0,2,0,0"
-                                           Style="{StaticResource SubtleLabelTextStyle}" />
-                            </StackPanel>
-                        </Grid>
-                    </Border>
-
-                    <!-- Platzhalter-Hinweis für erweiterbare Hub-Architektur -->
-                    <Border Background="Transparent"
+                            Background="{DynamicResource SurfaceSubtleBrush}"
                             BorderBrush="{DynamicResource CardBorderBrush}"
                             BorderThickness="1"
-                            CornerRadius="6"
-                            Padding="10,9"
-                            Opacity="0.65">
-                        <StackPanel>
-                            <TextBlock Text="{Binding Loc.HubExtensibleTitle}"
-                                       FontWeight="Medium"
-                                       FontSize="12" />
-                            <TextBlock Text="{Binding Loc.HubExtensibleSub}"
-                                       FontSize="11"
-                                       Margin="0,2,0,0"
-                                       Style="{StaticResource SubtleLabelTextStyle}" />
-                        </StackPanel>
+                            Margin="0,0,22,0"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="WC"
+                                   FontSize="12"
+                                   FontWeight="Bold"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource {x:Static SystemColors.AccentColorBrushKey}}" />
                     </Border>
+
+                    <RadioButton GroupName="TopNavGroup"
+                                 Content="{Binding Loc.NavDevicesTitle}"
+                                 IsChecked="{Binding IsDevicesTabSelected}"
+                                 Style="{StaticResource HubTopNavRadioStyle}" />
+                    <RadioButton GroupName="TopNavGroup"
+                                 Content="{Binding Loc.NavControlsTitle}"
+                                 IsChecked="{Binding IsControlsTabSelected}"
+                                 Style="{StaticResource HubTopNavRadioStyle}" />
+                    <RadioButton GroupName="TopNavGroup"
+                                 Content="{Binding Loc.NavOverlayTitle}"
+                                 IsChecked="{Binding IsOverlayTabSelected}"
+                                 Style="{StaticResource HubTopNavRadioStyle}" />
                 </StackPanel>
 
-                <!-- Schnellzugriff Stream Overlay -->
-                <StackPanel Grid.Row="3">
-                    <Button Command="{Binding OpenOverlayTabCommand}"
-                            Padding="10,8"
-                            HorizontalContentAlignment="Stretch"
-                            Margin="0,0,0,6">
-                        <DockPanel>
-                            <Ellipse DockPanel.Dock="Right"
-                                     Width="8" Height="8"
-                                     VerticalAlignment="Center"
-                                     Visibility="{Binding IsAnyOverlayActive, Converter={StaticResource BoolToVisibilityConverter}}"
-                                     Fill="#2EA043" />
-                            <TextBlock Text="{Binding Loc.TabOverlayTitle}" FontWeight="SemiBold" />
-                        </DockPanel>
-                    </Button>
-                    <Button Content="{Binding DesktopOverlayButtonText}"
-                            Command="{Binding ToggleDesktopOverlayCommand}"
-                            Padding="10,7" />
+                <!-- Rechts: Echtes Profil-Dropdown + DE/EN + Neu verbinden + Alle Motoren stoppen (kein Login!) -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Background="{DynamicResource SurfaceSubtleBrush}"
+                            BorderBrush="{DynamicResource CardBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            Padding="8,3"
+                            Margin="0,0,10,0">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding Loc.ProfilePrefix}"
+                                       Style="{StaticResource SubtleLabelTextStyle}"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,6,0" />
+                            <ComboBox ItemsSource="{Binding ProfileOptions}"
+                                      SelectedItem="{Binding SelectedProfileOption}"
+                                      DisplayMemberPath="DisplayName"
+                                      MinWidth="150"
+                                      BorderThickness="0"
+                                      Background="Transparent" />
+                        </StackPanel>
+                    </Border>
+
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
+                        <RadioButton GroupName="LangGroup" Content="DE" IsChecked="{Binding Loc.IsGerman}"
+                                     Style="{StaticResource SegmentedRadioStyle}" Padding="8,5" Margin="0,0,3,0" />
+                        <RadioButton GroupName="LangGroup" Content="EN" IsChecked="{Binding Loc.IsEnglish}"
+                                     Style="{StaticResource SegmentedRadioStyle}" Padding="8,5" />
+                    </StackPanel>
+
+                    <Button Content="{Binding Loc.ReconnectButton}"
+                            Command="{Binding ReconnectHardwareCommand}"
+                            Padding="10,6"
+                            Margin="0,0,8,0" />
+                    <Button Content="{Binding Loc.StopAllMotorsButton}"
+                            Command="{Binding EmergencyStopCommand}"
+                            Style="{StaticResource EmergencyStopButtonStyle}" />
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- RECHTER HAUPTBEREICH -->
-        <Grid Grid.Column="2">
+        <!-- KOMPAKTE HARDWARE-STATUS-LEISTE (3 Badges) -->
+        <Border Grid.Row="1"
+                Padding="20,7,20,0">
+            <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Border Style="{StaticResource StatusBadgeBorderStyle}"
+                        Background="{Binding DeviceBadgeLevel, Converter={StaticResource BadgeSeverityToBackgroundConverter}}"
+                        BorderBrush="{Binding DeviceBadgeLevel, Converter={StaticResource BadgeSeverityToBorderConverter}}"
+                        Margin="0,2,8,2">
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Width="8" Height="8" Margin="0,0,6,0" VerticalAlignment="Center"
+                                 Fill="{Binding DeviceBadgeLevel, Converter={StaticResource BadgeSeverityToDotConverter}}" />
+                        <TextBlock Text="{Binding DeviceBadgeText}" FontSize="11.5" FontWeight="Medium" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource StatusBadgeBorderStyle}"
+                        Background="{Binding FocusBadgeLevel, Converter={StaticResource BadgeSeverityToBackgroundConverter}}"
+                        BorderBrush="{Binding FocusBadgeLevel, Converter={StaticResource BadgeSeverityToBorderConverter}}"
+                        Margin="0,2,8,2">
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Width="8" Height="8" Margin="0,0,6,0" VerticalAlignment="Center"
+                                 Fill="{Binding FocusBadgeLevel, Converter={StaticResource BadgeSeverityToDotConverter}}" />
+                        <TextBlock Text="{Binding FocusBadgeText}" FontSize="11.5" FontWeight="Medium" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource StatusBadgeBorderStyle}"
+                        Background="{Binding PowerBadgeLevel, Converter={StaticResource BadgeSeverityToBackgroundConverter}}"
+                        BorderBrush="{Binding PowerBadgeLevel, Converter={StaticResource BadgeSeverityToBorderConverter}}"
+                        ToolTip="{Binding PowerBadgeTooltip}"
+                        Margin="0,2,8,2">
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Width="8" Height="8" Margin="0,0,6,0" VerticalAlignment="Center"
+                                 Fill="{Binding PowerBadgeLevel, Converter={StaticResource BadgeSeverityToDotConverter}}" />
+                        <TextBlock Text="{Binding PowerBadgeText}" FontSize="11.5" FontWeight="Medium" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+            </WrapPanel>
+        </Border>
+
+        <!-- HINWEISBANNER (Kombinierte Pedale) -->
+        <Border Grid.Row="2"
+                Visibility="{Binding CombinedPedalsWarning, Converter={StaticResource BoolToVisibilityConverter}}"
+                Background="{DynamicResource BadgeWarnBackgroundBrush}"
+                BorderBrush="{DynamicResource BadgeWarnBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="4"
+                Padding="10,5"
+                Margin="20,6,20,0">
+            <TextBlock Text="{Binding Loc.CombinedPedalsBanner}" FontSize="12" />
+        </Border>
+
+        <!-- ANSICHT 1: HOME / DEVICES (Exakt wie im Screenshot: zentrierte Geräte-Karte + Grid/List Toggle) -->
+        <Grid Grid.Row="3"
+              Margin="20,10,20,20"
+              Visibility="{Binding IsDevicesTabSelected, Converter={StaticResource BoolToVisibilityConverter}}">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <!-- KOPFZEILE: Tabs + 3 Status-Badges + DE/EN + Reconnect + Stop All Motors -->
-            <Border Grid.Row="0" Style="{StaticResource DiagnosticCardStyle}" Padding="12,8" Margin="0,0,0,10">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
+            <!-- Oben rechts: Grid | List Toggle -->
+            <Border Grid.Row="0"
+                    HorizontalAlignment="Right"
+                    Background="{DynamicResource SurfaceCardBrush}"
+                    BorderBrush="{DynamicResource CardBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="3">
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton GroupName="HomeLayoutGroup"
+                                 Content="⊞"
+                                 FontSize="14"
+                                 IsChecked="{Binding IsHomeGridView}"
+                                 Style="{StaticResource SegmentedRadioStyle}"
+                                 Padding="10,4"
+                                 Margin="0,0,3,0" />
+                    <RadioButton GroupName="HomeLayoutGroup"
+                                 Content="☰"
+                                 FontSize="14"
+                                 IsChecked="{Binding IsHomeListView}"
+                                 Style="{StaticResource SegmentedRadioStyle}"
+                                 Padding="10,4" />
+                </StackPanel>
+            </Border>
 
-                    <!-- Tab-Umschalter für aktives Gerät -->
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,14,0">
-                        <RadioButton GroupName="DeviceTabGroup"
-                                     Content="{Binding Loc.TabControlsTitle}"
-                                     IsChecked="{Binding IsControlsTabSelected}"
-                                     Style="{StaticResource SegmentedRadioStyle}"
-                                     Margin="0,0,4,0" />
-                        <RadioButton GroupName="DeviceTabGroup"
-                                     Content="{Binding Loc.TabOverlayTitle}"
-                                     IsChecked="{Binding IsOverlayTabSelected}"
-                                     Style="{StaticResource SegmentedRadioStyle}" />
-                    </StackPanel>
+            <!-- Grid-Modus: Zentrierte Geräte-Karte wie auf dem Screenshot -->
+            <Grid Grid.Row="1"
+                  Visibility="{Binding IsHomeGridView, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Button Command="{Binding OpenControlsTabCommand}"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Cursor="Hand">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="DeviceCardBorder"
+                                    Width="320"
+                                    Height="430"
+                                    Background="{DynamicResource SurfaceCardBrush}"
+                                    BorderBrush="{DynamicResource CardBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    Padding="24,22">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
 
-                    <!-- 3 Status-Badges -->
-                    <WrapPanel Grid.Column="1" VerticalAlignment="Center" Orientation="Horizontal">
-                        <Border Style="{StaticResource StatusBadgeBorderStyle}"
-                                Background="{Binding DeviceBadgeLevel, Converter={StaticResource BadgeSeverityToBackgroundConverter}}"
-                                BorderBrush="{Binding DeviceBadgeLevel, Converter={StaticResource BadgeSeverityToBorderConverter}}"
-                                Margin="0,2,8,2">
+                                    <!-- Gerätename + kleine Status/Zubehör-Icons oben links -->
+                                    <StackPanel Grid.Row="0">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Loc.HubPrimaryDeviceName}"
+                                                       FontSize="21"
+                                                       FontWeight="Bold"
+                                                       Foreground="{DynamicResource PrimaryTextBrush}" />
+                                            <Ellipse Width="9" Height="9"
+                                                     Margin="10,2,0,0"
+                                                     VerticalAlignment="Center"
+                                                     Fill="{Binding DeviceBadgeLevel, Converter={StaticResource BadgeSeverityToDotConverter}}" />
+                                        </StackPanel>
+
+                                        <!-- Kompakte Statuszeile unter dem Titel (wie die kleinen Icons im Screenshot) -->
+                                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                            <Border Background="{DynamicResource SurfaceSubtleBrush}"
+                                                    BorderBrush="{DynamicResource CardBorderBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="3"
+                                                    Padding="6,2"
+                                                    Margin="0,0,6,0">
+                                                <TextBlock Text="{Binding OperatingRangeDegrees, StringFormat={}{0}°}"
+                                                           FontSize="11"
+                                                           Typography.NumeralAlignment="Tabular"
+                                                           Style="{StaticResource SubtleLabelTextStyle}" />
+                                            </Border>
+                                            <Border Background="{DynamicResource SurfaceSubtleBrush}"
+                                                    BorderBrush="{DynamicResource CardBorderBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="3"
+                                                    Padding="6,2"
+                                                    Margin="0,0,6,0">
+                                                <TextBlock Text="{Binding ShifterGear, StringFormat=Gear: {0}}"
+                                                           FontSize="11"
+                                                           Typography.NumeralAlignment="Tabular"
+                                                           Style="{StaticResource SubtleLabelTextStyle}" />
+                                            </Border>
+                                            <Border Background="{DynamicResource SurfaceSubtleBrush}"
+                                                    BorderBrush="{DynamicResource CardBorderBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="3"
+                                                    Padding="6,2">
+                                                <TextBlock Text="{Binding HubPrimaryDeviceSubtitle}"
+                                                           FontSize="11"
+                                                           Style="{StaticResource SubtleLabelTextStyle}" />
+                                            </Border>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <!-- Großes, live drehendes Vektor-Lenkrad in der Mitte -->
+                                    <controls:SteeringWheelControl Grid.Row="1"
+                                                                   Width="230"
+                                                                   Height="230"
+                                                                   IsHitTestVisible="False"
+                                                                   CurrentAngle="{Binding CurrentAngleDegrees}"
+                                                                   ShowTargetMarker="False"
+                                                                   ShowDegreeScale="False"
+                                                                   LeftPaddlePressed="{Binding LeftPaddlePressed}"
+                                                                   RightPaddlePressed="{Binding RightPaddlePressed}" />
+
+                                    <!-- Dezenter Klick-Hinweis unten -->
+                                    <TextBlock Grid.Row="2"
+                                               Text="{Binding Loc.HomeCardClickHint}"
+                                               HorizontalAlignment="Center"
+                                               FontSize="11.5"
+                                               Style="{StaticResource SubtleLabelTextStyle}" />
+                                </Grid>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="DeviceCardBorder" Property="BorderBrush"
+                                            Value="{DynamicResource {x:Static SystemColors.AccentColorBrushKey}}" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Grid>
+
+            <!-- List-Modus: Kompakte horizontale Geräte-Zeile -->
+            <StackPanel Grid.Row="1"
+                        VerticalAlignment="Top"
+                        HorizontalAlignment="Center"
+                        Width="780"
+                        Margin="0,24,0,0"
+                        Visibility="{Binding IsHomeListView, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Border Style="{StaticResource DiagnosticCardStyle}" Padding="18,14">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <controls:SteeringWheelControl Grid.Column="0"
+                                                       Width="72" Height="72"
+                                                       IsHitTestVisible="False"
+                                                       CurrentAngle="{Binding CurrentAngleDegrees}"
+                                                       ShowTargetMarker="False"
+                                                       ShowDegreeScale="False"
+                                                       Margin="0,0,16,0" />
+
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
                             <StackPanel Orientation="Horizontal">
-                                <Ellipse Width="8" Height="8" Margin="0,0,6,0" VerticalAlignment="Center"
+                                <TextBlock Text="{Binding Loc.HubPrimaryDeviceName}" FontSize="16" FontWeight="Bold" />
+                                <Ellipse Width="8" Height="8" Margin="8,2,0,0" VerticalAlignment="Center"
                                          Fill="{Binding DeviceBadgeLevel, Converter={StaticResource BadgeSeverityToDotConverter}}" />
-                                <TextBlock Text="{Binding DeviceBadgeText}" FontSize="12" FontWeight="Medium" VerticalAlignment="Center" />
                             </StackPanel>
-                        </Border>
-
-                        <Border Style="{StaticResource StatusBadgeBorderStyle}"
-                                Background="{Binding FocusBadgeLevel, Converter={StaticResource BadgeSeverityToBackgroundConverter}}"
-                                BorderBrush="{Binding FocusBadgeLevel, Converter={StaticResource BadgeSeverityToBorderConverter}}"
-                                Margin="0,2,8,2">
-                            <StackPanel Orientation="Horizontal">
-                                <Ellipse Width="8" Height="8" Margin="0,0,6,0" VerticalAlignment="Center"
-                                         Fill="{Binding FocusBadgeLevel, Converter={StaticResource BadgeSeverityToDotConverter}}" />
-                                <TextBlock Text="{Binding FocusBadgeText}" FontSize="12" FontWeight="Medium" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Border>
-
-                        <Border Style="{StaticResource StatusBadgeBorderStyle}"
-                                Background="{Binding PowerBadgeLevel, Converter={StaticResource BadgeSeverityToBackgroundConverter}}"
-                                BorderBrush="{Binding PowerBadgeLevel, Converter={StaticResource BadgeSeverityToBorderConverter}}"
-                                ToolTip="{Binding PowerBadgeTooltip}"
-                                Margin="0,2,8,2">
-                            <StackPanel Orientation="Horizontal">
-                                <Ellipse Width="8" Height="8" Margin="0,0,6,0" VerticalAlignment="Center"
-                                         Fill="{Binding PowerBadgeLevel, Converter={StaticResource BadgeSeverityToDotConverter}}" />
-                                <TextBlock Text="{Binding PowerBadgeText}" FontSize="12" FontWeight="Medium" VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Border>
-                    </WrapPanel>
-
-                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
-                            <RadioButton GroupName="LangGroup" Content="DE" IsChecked="{Binding Loc.IsGerman}"
-                                         Style="{StaticResource SegmentedRadioStyle}" Padding="8,5" Margin="0,0,3,0" />
-                            <RadioButton GroupName="LangGroup" Content="EN" IsChecked="{Binding Loc.IsEnglish}"
-                                         Style="{StaticResource SegmentedRadioStyle}" Padding="8,5" />
+                            <TextBlock Text="{Binding HubPrimaryDeviceSubtitle}" Margin="0,3,0,0" Style="{StaticResource SubtleLabelTextStyle}" />
                         </StackPanel>
 
-                        <Button Content="{Binding Loc.ReconnectButton}"
-                                Command="{Binding ReconnectHardwareCommand}"
-                                Padding="10,7"
-                                Margin="0,0,8,0" />
-                        <Button Content="{Binding Loc.StopAllMotorsButton}"
-                                Command="{Binding EmergencyStopCommand}"
-                                Style="{StaticResource EmergencyStopButtonStyle}" />
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Content="{Binding Loc.TabOverlayTitle}"
+                                    Command="{Binding OpenOverlayTabCommand}"
+                                    Padding="12,7"
+                                    Margin="0,0,8,0" />
+                            <Button Content="{Binding Loc.HomeOpenControlsButton}"
+                                    Command="{Binding OpenControlsTabCommand}"
+                                    Padding="14,7" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </Grid>
+
+        <!-- ANSICHT 2: CONTROLS & TELEMETRY (3 Spalten) -->
+        <Grid Grid.Row="3"
+              Margin="20,10,20,14"
+              Visibility="{Binding IsControlsTabSelected, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.15*" />
+                <ColumnDefinition Width="1.00*" />
+                <ColumnDefinition Width="1.05*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- SPALTE 1: Lenkrad-Steuerung -->
+            <Border Grid.Column="0" Style="{StaticResource DiagnosticCardStyle}" Margin="0,0,10,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" Margin="0,0,0,8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <DockPanel Grid.Row="0" Margin="0,0,0,6">
+                            <TextBlock Text="{Binding Loc.SteeringSectionTitle}" Style="{StaticResource SectionHeaderTextStyle}" />
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
+                                <TextBlock Text="{Binding Loc.OperatingRangePrefix}" Style="{StaticResource SubtleLabelTextStyle}" Margin="0,0,4,0" />
+                                <TextBlock Text="{Binding OperatingRangeDegrees, StringFormat={}{0}°}"
+                                           Style="{StaticResource SubtleLabelTextStyle}"
+                                           Typography.NumeralAlignment="Tabular" />
+                            </StackPanel>
+                        </DockPanel>
+
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="6" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <RadioButton Grid.Column="0"
+                                         GroupName="ControlModeGroup"
+                                         Content="{Binding Loc.ModeFreewheel}"
+                                         IsChecked="{Binding IsFreewheelMode}"
+                                         Style="{StaticResource SegmentedRadioStyle}" />
+                            <RadioButton Grid.Column="2"
+                                         GroupName="ControlModeGroup"
+                                         Content="{Binding Loc.ModeMotorPositioning}"
+                                         IsChecked="{Binding IsMotorPositioningMode}"
+                                         Style="{StaticResource SegmentedRadioStyle}" />
+                        </Grid>
+                    </Grid>
+
+                    <StackPanel Grid.Row="1" Margin="0,0,0,4">
+                        <controls:RpmLedBarControl NormalizedRpm="{Binding DisplayedRpmNormalized}" />
+                    </StackPanel>
+
+                    <controls:SteeringWheelControl x:Name="WheelControl"
+                                                   Grid.Row="2"
+                                                   Margin="0,2,0,4"
+                                                   CurrentAngle="{Binding CurrentAngleDegrees}"
+                                                   TargetAngle="{Binding TargetAngleDegrees, Mode=TwoWay}"
+                                                   OperatingRange="{Binding OperatingRangeDegrees}"
+                                                   ShowTargetMarker="{Binding IsMotorPositioningMode}"
+                                                   ShowDegreeScale="True"
+                                                   LeftPaddlePressed="{Binding LeftPaddlePressed}"
+                                                   RightPaddlePressed="{Binding RightPaddlePressed}"
+                                                   WheelDraggedAngle="OnWheelControlDraggedAngle"
+                                                   ToolTip="{Binding Loc.WheelDragTooltip}" />
+
+                    <Border Grid.Row="3"
+                            Background="{DynamicResource SurfaceSubtleBrush}"
+                            BorderBrush="{DynamicResource CardBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            Padding="10,7"
+                            Margin="0,0,0,8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.2*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="{Binding Loc.ActualAngleLabel}" FontSize="10.5" Style="{StaticResource SubtleLabelTextStyle}" />
+                                <TextBlock Text="{Binding CurrentAngleFormatted}"
+                                           FontSize="23"
+                                           Style="{StaticResource TabularValueTextStyle}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Loc.DeflectionLabel}" FontSize="10.5" Style="{StaticResource SubtleLabelTextStyle}" />
+                                <TextBlock Text="{Binding CurrentPercentFormatted}"
+                                           FontSize="15"
+                                           Style="{StaticResource TabularValueTextStyle}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Loc.RawValueLabel}" FontSize="10.5" Style="{StaticResource SubtleLabelTextStyle}" />
+                                <TextBlock Text="{Binding CurrentRawX}"
+                                           FontSize="15"
+                                           Style="{StaticResource TabularValueTextStyle}" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <Grid Grid.Row="4" Margin="0,0,0,8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <DockPanel Grid.Row="0" Margin="0,0,0,8"
+                                   Visibility="{Binding IsFreewheelMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <CheckBox Content="{Binding Loc.GentleDampingLabel}"
+                                      IsChecked="{Binding FreewheelGentleDampingEnabled}"
+                                      VerticalAlignment="Center" />
+                            <TextBlock DockPanel.Dock="Right"
+                                       Text="{Binding FreewheelDampingPercent, StringFormat={}{0} %}"
+                                       Width="36"
+                                       TextAlignment="Right"
+                                       VerticalAlignment="Center"
+                                       Style="{StaticResource TabularValueTextStyle}" />
+                            <Slider Minimum="0" Maximum="40"
+                                    Value="{Binding FreewheelDampingPercent}"
+                                    IsEnabled="{Binding FreewheelGentleDampingEnabled}"
+                                    Margin="10,0,6,0"
+                                    VerticalAlignment="Center" />
+                        </DockPanel>
+
+                        <DockPanel Grid.Row="1">
+                            <TextBlock Text="{Binding Loc.RangeLabel}" VerticalAlignment="Center" Margin="0,0,8,0"
+                                       Style="{StaticResource SubtleLabelTextStyle}" />
+                            <UniformGrid Columns="4" HorizontalAlignment="Stretch">
+                                <RadioButton GroupName="RangeGroup" Content="180°" Margin="0,0,4,0"
+                                             IsChecked="{Binding OperatingRangeDegrees, Converter={StaticResource EnumEqualsBoolConverter}, ConverterParameter=180}"
+                                             Style="{StaticResource SegmentedRadioStyle}" Padding="6,4" />
+                                <RadioButton GroupName="RangeGroup" Content="360°" Margin="0,0,4,0"
+                                             IsChecked="{Binding OperatingRangeDegrees, Converter={StaticResource EnumEqualsBoolConverter}, ConverterParameter=360}"
+                                             Style="{StaticResource SegmentedRadioStyle}" Padding="6,4" />
+                                <RadioButton GroupName="RangeGroup" Content="540°" Margin="0,0,4,0"
+                                             IsChecked="{Binding OperatingRangeDegrees, Converter={StaticResource EnumEqualsBoolConverter}, ConverterParameter=540}"
+                                             Style="{StaticResource SegmentedRadioStyle}" Padding="6,4" />
+                                <RadioButton GroupName="RangeGroup" Content="900°"
+                                             IsChecked="{Binding OperatingRangeDegrees, Converter={StaticResource EnumEqualsBoolConverter}, ConverterParameter=900}"
+                                             Style="{StaticResource SegmentedRadioStyle}" Padding="6,4" />
+                            </UniformGrid>
+                        </DockPanel>
+                    </Grid>
+
+                    <StackPanel Grid.Row="5">
+                        <DockPanel Margin="0,0,0,4">
+                            <TextBlock Text="{Binding Loc.TargetAngleTitle}" VerticalAlignment="Center" FontWeight="SemiBold" />
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
+                                <TextBox x:Name="TargetAngleTextBox"
+                                         Width="68"
+                                         Text="{Binding TargetAngleInputText, UpdateSourceTrigger=PropertyChanged}"
+                                         Typography.NumeralAlignment="Tabular"
+                                         VerticalContentAlignment="Center"
+                                         GotFocus="OnTargetInputGotFocus"
+                                         LostFocus="OnTargetInputLostFocus"
+                                         KeyDown="OnTargetInputKeyDown"
+                                         Margin="0,0,4,0" />
+                                <TextBlock Text="°" VerticalAlignment="Center" Margin="0,0,6,0" />
+                                <Button Content="{Binding Loc.ApplyTargetButton}"
+                                        Command="{Binding ApplyTargetAngleCommand}"
+                                        Padding="8,3" />
+                            </StackPanel>
+                        </DockPanel>
+
+                        <Slider Minimum="{Binding MinOperatingAngleDegrees}"
+                                Maximum="{Binding MaxOperatingAngleDegrees}"
+                                Value="{Binding TargetAngleDegrees}"
+                                TickFrequency="90"
+                                IsSnapToTickEnabled="False"
+                                Margin="0,0,0,6" />
+
+                        <UniformGrid Columns="7">
+                            <Button Content="-450°" Command="{Binding SetQuickAngleCommand}" CommandParameter="-450" Style="{StaticResource QuickPresetButtonStyle}" Margin="0,0,3,0" />
+                            <Button Content="-180°" Command="{Binding SetQuickAngleCommand}" CommandParameter="-180" Style="{StaticResource QuickPresetButtonStyle}" Margin="0,0,3,0" />
+                            <Button Content="-90°" Command="{Binding SetQuickAngleCommand}" CommandParameter="-90" Style="{StaticResource QuickPresetButtonStyle}" Margin="0,0,3,0" />
+                            <Button Content="{Binding Loc.CenterPresetButton}" Command="{Binding SetQuickAngleCommand}" CommandParameter="0" Style="{StaticResource QuickPresetButtonStyle}" Margin="0,0,3,0" FontWeight="SemiBold" />
+                            <Button Content="+90°" Command="{Binding SetQuickAngleCommand}" CommandParameter="90" Style="{StaticResource QuickPresetButtonStyle}" Margin="0,0,3,0" />
+                            <Button Content="+180°" Command="{Binding SetQuickAngleCommand}" CommandParameter="180" Style="{StaticResource QuickPresetButtonStyle}" Margin="0,0,3,0" />
+                            <Button Content="+450°" Command="{Binding SetQuickAngleCommand}" CommandParameter="450" Style="{StaticResource QuickPresetButtonStyle}" />
+                        </UniformGrid>
                     </StackPanel>
                 </Grid>
             </Border>
 
-            <!-- HINWEISBANNER (Kombinierte Pedale) -->
-            <Border Grid.Row="1"
-                    Visibility="{Binding CombinedPedalsWarning, Converter={StaticResource BoolToVisibilityConverter}}"
-                    Background="{DynamicResource BadgeWarnBackgroundBrush}"
-                    BorderBrush="{DynamicResource BadgeWarnBorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="4"
-                    Padding="10,5"
-                    Margin="0,0,0,8">
-                <TextBlock Text="{Binding Loc.CombinedPedalsBanner}" FontSize="12" />
-            </Border>
+            <!-- SPALTE 2: Force-Feedback-Labor & Positionsregler -->
+            <Grid Grid.Column="1" Margin="0,0,10,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-            <!-- ANSICHT 1: CONTROLS & TELEMETRY (3 Spalten) -->
-            <Grid Grid.Row="2" Visibility="{Binding IsControlsTabSelected, Converter={StaticResource BoolToVisibilityConverter}}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1.15*" />
-                    <ColumnDefinition Width="1.00*" />
-                    <ColumnDefinition Width="1.05*" />
-                </Grid.ColumnDefinitions>
-
-                <!-- SPALTE 1: Lenkrad-Steuerung -->
-                <Border Grid.Column="0" Style="{StaticResource DiagnosticCardStyle}" Margin="0,0,10,0">
+                <Border Grid.Row="0" Style="{StaticResource DiagnosticCardStyle}" Margin="0,0,0,10">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
-                        <Grid Grid.Row="0" Margin="0,0,0,8">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-                            <DockPanel Grid.Row="0" Margin="0,0,0,6">
-                                <TextBlock Text="{Binding Loc.SteeringSectionTitle}" Style="{StaticResource SectionHeaderTextStyle}" />
-                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
-                                    <TextBlock Text="{Binding Loc.OperatingRangePrefix}" Style="{StaticResource SubtleLabelTextStyle}" Margin="0,0,4,0" />
-                                    <TextBlock Text="{Binding OperatingRangeDegrees, StringFormat={}{0}°}"
-                                               Style="{StaticResource SubtleLabelTextStyle}"
-                                               Typography.NumeralAlignment="Tabular" />
-                                </StackPanel>
-                            </DockPanel>
+                        <TextBlock Grid.Row="0" Text="{Binding Loc.FfbLabTitle}"
+                                   Style="{StaticResource SectionHeaderTextStyle}" Margin="0,0,0,8" />
 
-                            <Grid Grid.Row="1">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="6" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <RadioButton Grid.Column="0"
-                                             GroupName="ControlModeGroup"
-                                             Content="{Binding Loc.ModeFreewheel}"
-                                             IsChecked="{Binding IsFreewheelMode}"
-                                             Style="{StaticResource SegmentedRadioStyle}" />
-                                <RadioButton Grid.Column="2"
-                                             GroupName="ControlModeGroup"
-                                             Content="{Binding Loc.ModeMotorPositioning}"
-                                             IsChecked="{Binding IsMotorPositioningMode}"
-                                             Style="{StaticResource SegmentedRadioStyle}" />
-                            </Grid>
-                        </Grid>
-
-                        <StackPanel Grid.Row="1" Margin="0,0,0,4">
-                            <controls:RpmLedBarControl NormalizedRpm="{Binding DisplayedRpmNormalized}" />
-                        </StackPanel>
-
-                        <controls:SteeringWheelControl x:Name="WheelControl"
-                                                       Grid.Row="2"
-                                                       Margin="0,2,0,4"
-                                                       CurrentAngle="{Binding CurrentAngleDegrees}"
-                                                       TargetAngle="{Binding TargetAngleDegrees, Mode=TwoWay}"
-                                                       OperatingRange="{Binding OperatingRangeDegrees}"
-                                                       ShowTargetMarker="{Binding IsMotorPositioningMode}"
-                                                       ShowDegreeScale="True"
-                                                       LeftPaddlePressed="{Binding LeftPaddlePressed}"
-                                                       RightPaddlePressed="{Binding RightPaddlePressed}"
-                                                       WheelDraggedAngle="OnWheelControlDraggedAngle"
-                                                       ToolTip="{Binding Loc.WheelDragTooltip}" />
-
-                        <Border Grid.Row="3"
-                                Background="{DynamicResource SurfaceSubtleBrush}"
-                                BorderBrush="{DynamicResource CardBorderBrush}"
-                                BorderThickness="1"
-                                CornerRadius="4"
-                                Padding="10,7"
-                                Margin="0,0,0,8">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="1.2*" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="{Binding Loc.ActualAngleLabel}" FontSize="10.5" Style="{StaticResource SubtleLabelTextStyle}" />
-                                    <TextBlock Text="{Binding CurrentAngleFormatted}"
-                                               FontSize="23"
-                                               Style="{StaticResource TabularValueTextStyle}" />
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding Loc.DeflectionLabel}" FontSize="10.5" Style="{StaticResource SubtleLabelTextStyle}" />
-                                    <TextBlock Text="{Binding CurrentPercentFormatted}"
-                                               FontSize="15"
-                                               Style="{StaticResource TabularValueTextStyle}" />
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding Loc.RawValueLabel}" FontSize="10.5" Style="{StaticResource SubtleLabelTextStyle}" />
-                                    <TextBlock Text="{Binding CurrentRawX}"
-                                               FontSize="15"
-                                               Style="{StaticResource TabularValueTextStyle}" />
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-
-                        <Grid Grid.Row="4" Margin="0,0,0,8">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-
-                            <DockPanel Grid.Row="0" Margin="0,0,0,8"
-                                       Visibility="{Binding IsFreewheelMode, Converter={StaticResource BoolToVisibilityConverter}}">
-                                <CheckBox Content="{Binding Loc.GentleDampingLabel}"
-                                          IsChecked="{Binding FreewheelGentleDampingEnabled}"
-                                          VerticalAlignment="Center" />
-                                <TextBlock DockPanel.Dock="Right"
-                                           Text="{Binding FreewheelDampingPercent, StringFormat={}{0} %}"
-                                           Width="36"
-                                           TextAlignment="Right"
-                                           VerticalAlignment="Center"
-                                           Style="{StaticResource TabularValueTextStyle}" />
-                                <Slider Minimum="0" Maximum="40"
-                                        Value="{Binding FreewheelDampingPercent}"
-                                        IsEnabled="{Binding FreewheelGentleDampingEnabled}"
-                                        Margin="10,0,6,0"
-                                        VerticalAlignment="Center" />
-                            </DockPanel>
-
-                            <DockPanel Grid.Row="1">
-                                <TextBlock Text="{Binding Loc.RangeLabel}" VerticalAlignment="Center" Margin="0,0,8,0"
-                                           Style="{StaticResource SubtleLabelTextStyle}" />
-                                <UniformGrid Columns="4" HorizontalAlignment="Stretch">
-                                    <RadioButton GroupName="RangeGroup" Content="180°" Margin="0,0,4,0"
-                                                 IsChecked="{Binding OperatingRangeDegrees, Converter={StaticResource EnumEqualsBoolConverter}, ConverterParameter=180}"
-                                                 Style="{StaticResource SegmentedRadioStyle}" Padding="6,4" />
-                                    <RadioButton GroupName="RangeGroup" Content="360°" Margin="0,0,4,0"
-                                                 IsChecked="{Binding OperatingRangeDegrees, Converter={StaticResource EnumEqualsBoolConverter}, ConverterParameter=360}"
-                                                 Style="{StaticResource SegmentedRadioStyle}" Padding="6,4" />
-                                    <RadioButton GroupName="RangeGroup" Content="540°" Margin="0,0,4,0"
-                                                 IsChecked="{Binding OperatingRangeDegrees, Converter={StaticResource EnumEqualsBoolConverter}, ConverterParameter=540}"
-                                                 Style="{StaticResource SegmentedRadioStyle}" Padding="6,4" />
-                                    <RadioButton GroupName="RangeGroup" Content="900°"
-                                                 IsChecked="{Binding OperatingRangeDegrees, Converter={StaticResource EnumEqualsBoolConverter}, ConverterParameter=900}"
-                                                 Style="{StaticResource SegmentedRadioStyle}" Padding="6,4" />
-                                </UniformGrid>
-                            </DockPanel>
-                        </Grid>
-
-                        <StackPanel Grid.Row="5">
-                            <DockPanel Margin="0,0,0,4">
-                                <TextBlock Text="{Binding Loc.TargetAngleTitle}" VerticalAlignment="Center" FontWeight="SemiBold" />
-                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
-                                    <TextBox x:Name="TargetAngleTextBox"
-                                             Width="68"
-                                             Text="{Binding TargetAngleInputText, UpdateSourceTrigger=PropertyChanged}"
-                                             Typography.NumeralAlignment="Tabular"
-                                             VerticalContentAlignment="Center"
-                                             GotFocus="OnTargetInputGotFocus"
-                                             LostFocus="OnTargetInputLostFocus"
-                                             KeyDown="OnTargetInputKeyDown"
-                                             Margin="0,0,4,0" />
-                                    <TextBlock Text="°" VerticalAlignment="Center" Margin="0,0,6,0" />
-                                    <Button Content="{Binding Loc.ApplyTargetButton}"
-                                            Command="{Binding ApplyTargetAngleCommand}"
-                                            Padding="8,3" />
-                                </StackPanel>
-                            </DockPanel>
-
-                            <Slider Minimum="{Binding MinOperatingAngleDegrees}"
-                                    Maximum="{Binding MaxOperatingAngleDegrees}"
-                                    Value="{Binding TargetAngleDegrees}"
-                                    TickFrequency="90"
-                                    IsSnapToTickEnabled="False"
-                                    Margin="0,0,0,6" />
-
-                            <UniformGrid Columns="7">
-                                <Button Content="-450°" Command="{Binding SetQuickAngleCommand}" CommandParameter="-450" Style="{StaticResource QuickPresetButtonStyle}" Margin="0,0,3,0" />
-                                <Button Content="-180°" Command="{Binding SetQuickAngleCommand}" CommandParameter="-180" Style="{StaticResource QuickPresetButtonStyle}" Margin="0,0,3,0" />
-                                <Button Content="-90°" Command="{Binding SetQuickAngleCommand}" CommandParameter="-90" Style="{StaticResource QuickPresetButtonStyle}" Margin="0,0,3,0" />
-                                <Button Content="{Binding Loc.CenterPresetButton}" Command="{Binding SetQuickAngleCommand}" CommandParameter="0" Style="{StaticResource QuickPresetButtonStyle}" Margin="0,0,3,0" FontWeight="SemiBold" />
-                                <Button Content="+90°" Command="{Binding SetQuickAngleCommand}" CommandParameter="90" Style="{StaticResource QuickPresetButtonStyle}" Margin="0,0,3,0" />
-                                <Button Content="+180°" Command="{Binding SetQuickAngleCommand}" CommandParameter="180" Style="{StaticResource QuickPresetButtonStyle}" Margin="0,0,3,0" />
-                                <Button Content="+450°" Command="{Binding SetQuickAngleCommand}" CommandParameter="450" Style="{StaticResource QuickPresetButtonStyle}" />
-                            </UniformGrid>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-
-                <!-- SPALTE 2: Force-Feedback-Labor & Positionsregler -->
-                <Grid Grid.Column="1" Margin="0,0,10,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-
-                    <Border Grid.Row="0" Style="{StaticResource DiagnosticCardStyle}" Margin="0,0,0,10">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-
-                            <TextBlock Grid.Row="0" Text="{Binding Loc.FfbLabTitle}"
-                                       Style="{StaticResource SectionHeaderTextStyle}" Margin="0,0,0,8" />
-
-                            <Border Grid.Row="1" Background="{DynamicResource SurfaceSubtleBrush}"
-                                    BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1"
-                                    CornerRadius="4" Padding="9,7" Margin="0,0,0,7">
-                                <StackPanel>
-                                    <CheckBox Content="{Binding Loc.SpringTitle}"
-                                              IsChecked="{Binding SpringEnabled}"
-                                              FontWeight="SemiBold" Margin="0,0,0,6" />
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="90" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="46" />
-                                        </Grid.ColumnDefinitions>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="Auto" />
-                                        </Grid.RowDefinitions>
-
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Loc.SpringOffsetLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" />
-                                        <Slider Grid.Row="0" Grid.Column="1" Minimum="-100" Maximum="100" Value="{Binding SpringOffsetPercent}" VerticalAlignment="Center" />
-                                        <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding SpringOffsetPercent, StringFormat={}{0:+0;-0;0} %}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" />
-
-                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding Loc.SpringSaturationLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" />
-                                        <Slider Grid.Row="1" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding SpringSaturationPercent}" VerticalAlignment="Center" />
-                                        <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding SpringSaturationPercent, StringFormat={}{0} %}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" />
-
-                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding Loc.SpringCoefficientLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" />
-                                        <Slider Grid.Row="2" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding SpringCoefficientPercent}" VerticalAlignment="Center" />
-                                        <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding SpringCoefficientPercent, StringFormat={}{0} %}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" />
-                                    </Grid>
-                                </StackPanel>
-                            </Border>
-
-                            <Border Grid.Row="2" Background="{DynamicResource SurfaceSubtleBrush}"
-                                    BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1"
-                                    CornerRadius="4" Padding="9,7" Margin="0,0,0,7">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-                                    <CheckBox Grid.Row="0" Content="{Binding Loc.DamperTitle}"
-                                              IsChecked="{Binding DamperEnabled}" FontWeight="SemiBold" Margin="0,0,0,4" />
-                                    <Grid Grid.Row="1">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="90" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="46" />
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="{Binding Loc.DamperResistanceLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" />
-                                        <Slider Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding DamperCoefficientPercent}" VerticalAlignment="Center" />
-                                        <TextBlock Grid.Column="2" Text="{Binding DamperCoefficientPercent, StringFormat={}{0} %}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" />
-                                    </Grid>
-                                </Grid>
-                            </Border>
-
-                            <Border Grid.Row="3" Background="{DynamicResource SurfaceSubtleBrush}"
-                                    BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1"
-                                    CornerRadius="4" Padding="9,7" Margin="0,0,0,7">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-                                    <CheckBox Grid.Row="0" Content="{Binding Loc.BumpyTitle}"
-                                              IsChecked="{Binding BumpyRoadEnabled}" FontWeight="SemiBold" Margin="0,0,0,4" />
-                                    <Grid Grid.Row="1">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="90" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="46" />
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="{Binding Loc.IntensityLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" />
-                                        <Slider Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding BumpyRoadMagnitudePercent}" VerticalAlignment="Center" />
-                                        <TextBlock Grid.Column="2" Text="{Binding BumpyRoadMagnitudePercent, StringFormat={}{0} %}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" />
-                                    </Grid>
-                                </Grid>
-                            </Border>
-
-                            <Border Grid.Row="4" Background="{DynamicResource SurfaceSubtleBrush}"
-                                    BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1"
-                                    CornerRadius="4" Padding="9,7" Margin="0,0,0,7">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-                                    <CheckBox Grid.Row="0" Content="{Binding Loc.DirtTitle}"
-                                              IsChecked="{Binding DirtRoadEnabled}" FontWeight="SemiBold" Margin="0,0,0,4" />
-                                    <Grid Grid.Row="1">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="90" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="46" />
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="{Binding Loc.IntensityLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" />
-                                        <Slider Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding DirtRoadMagnitudePercent}" VerticalAlignment="Center" />
-                                        <TextBlock Grid.Column="2" Text="{Binding DirtRoadMagnitudePercent, StringFormat={}{0} %}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" />
-                                    </Grid>
-                                </Grid>
-                            </Border>
-
-                            <Border Grid.Row="5" Background="{DynamicResource SurfaceSubtleBrush}"
-                                    BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1"
-                                    CornerRadius="4" Padding="9,7">
+                        <Border Grid.Row="1" Background="{DynamicResource SurfaceSubtleBrush}"
+                                BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1"
+                                CornerRadius="4" Padding="9,7" Margin="0,0,0,7">
+                            <StackPanel>
+                                <CheckBox Content="{Binding Loc.SpringTitle}"
+                                          IsChecked="{Binding SpringEnabled}"
+                                          FontWeight="SemiBold" Margin="0,0,0,6" />
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="90" />
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="46" />
-                                        <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="{Binding Loc.CollisionLabel}" VerticalAlignment="Center" FontWeight="SemiBold" />
-                                    <Slider Grid.Column="1" Minimum="10" Maximum="100" Value="{Binding CollisionMagnitudePercent}" VerticalAlignment="Center" />
-                                    <TextBlock Grid.Column="2" Text="{Binding CollisionMagnitudePercent, StringFormat={}{0} %}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" Margin="0,0,8,0" />
-                                    <Button Grid.Column="3" Content="{Binding Loc.CollisionButton}" Command="{Binding TriggerCollisionCommand}" Padding="10,4" />
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Loc.SpringOffsetLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" />
+                                    <Slider Grid.Row="0" Grid.Column="1" Minimum="-100" Maximum="100" Value="{Binding SpringOffsetPercent}" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding SpringOffsetPercent, StringFormat={}{0:+0;-0;0} %}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" />
+
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding Loc.SpringSaturationLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" />
+                                    <Slider Grid.Row="1" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding SpringSaturationPercent}" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding SpringSaturationPercent, StringFormat={}{0} %}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" />
+
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding Loc.SpringCoefficientLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" />
+                                    <Slider Grid.Row="2" Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding SpringCoefficientPercent}" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding SpringCoefficientPercent, StringFormat={}{0} %}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" />
                                 </Grid>
-                            </Border>
-                        </Grid>
-                    </Border>
+                            </StackPanel>
+                        </Border>
 
-                    <Border Grid.Row="1" Style="{StaticResource DiagnosticCardStyle}">
-                        <StackPanel>
-                            <DockPanel Margin="0,0,0,8">
-                                <TextBlock Text="{Binding Loc.ControllerSectionTitle}" Style="{StaticResource SectionHeaderTextStyle}" />
-                                <Button DockPanel.Dock="Right" Content="{Binding Loc.ResetDefaultsButton}" Command="{Binding ResetPidDefaultsCommand}" Padding="8,2" FontSize="11.5" />
-                            </DockPanel>
-
+                        <Border Grid.Row="2" Background="{DynamicResource SurfaceSubtleBrush}"
+                                BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1"
+                                CornerRadius="4" Padding="9,7" Margin="0,0,0,7">
                             <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="150" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="52" />
-                                </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <CheckBox Grid.Row="0" Content="{Binding Loc.DamperTitle}"
+                                          IsChecked="{Binding DamperEnabled}" FontWeight="SemiBold" Margin="0,0,0,4" />
+                                <Grid Grid.Row="1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="90" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="46" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding Loc.DamperResistanceLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" />
+                                    <Slider Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding DamperCoefficientPercent}" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="2" Text="{Binding DamperCoefficientPercent, StringFormat={}{0} %}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" />
+                                </Grid>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Row="3" Background="{DynamicResource SurfaceSubtleBrush}"
+                                BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1"
+                                CornerRadius="4" Padding="9,7" Margin="0,0,0,7">
+                            <Grid>
+                                <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
-
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Loc.MaxForceLabel}" VerticalAlignment="Center" FontWeight="SemiBold" />
-                                <Slider Grid.Row="0" Grid.Column="1" Minimum="10" Maximum="100" TickFrequency="10" Value="{Binding MaxMotorForcePercent}" VerticalAlignment="Center" />
-                                <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding MaxMotorForcePercent, StringFormat={}{0} %}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" />
-
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding Loc.KpLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" />
-                                <Slider Grid.Row="1" Grid.Column="1" Minimum="0.1" Maximum="3.5" SmallChange="0.05" LargeChange="0.2" Value="{Binding PidKp}" VerticalAlignment="Center" />
-                                <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding PidKp, StringFormat={}{0:0.00}}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" />
-
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding Loc.KdLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" />
-                                <Slider Grid.Row="2" Grid.Column="1" Minimum="0.00" Maximum="0.30" SmallChange="0.01" LargeChange="0.05" Value="{Binding PidKd}" VerticalAlignment="Center" />
-                                <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding PidKd, StringFormat={}{0:0.000}}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" />
-
-                                <TextBlock Grid.Row="3" Grid.Column="0" Text="{Binding Loc.DeadzoneLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" />
-                                <Slider Grid.Row="3" Grid.Column="1" Minimum="0.0" Maximum="3.0" SmallChange="0.1" Value="{Binding PidDeadzoneDegrees}" VerticalAlignment="Center" />
-                                <TextBlock Grid.Row="3" Grid.Column="2" Text="{Binding PidDeadzoneDegrees, StringFormat={}{0:0.0}°}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" />
+                                <CheckBox Grid.Row="0" Content="{Binding Loc.BumpyTitle}"
+                                          IsChecked="{Binding BumpyRoadEnabled}" FontWeight="SemiBold" Margin="0,0,0,4" />
+                                <Grid Grid.Row="1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="90" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="46" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding Loc.IntensityLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" />
+                                    <Slider Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding BumpyRoadMagnitudePercent}" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="2" Text="{Binding BumpyRoadMagnitudePercent, StringFormat={}{0} %}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" />
+                                </Grid>
                             </Grid>
-                        </StackPanel>
-                    </Border>
-                </Grid>
+                        </Border>
 
-                <!-- SPALTE 3: Pedale, RPM-LEDs, H-Shifter & 25-Tasten-Matrix -->
-                <Grid Grid.Column="2">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
+                        <Border Grid.Row="4" Background="{DynamicResource SurfaceSubtleBrush}"
+                                BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1"
+                                CornerRadius="4" Padding="9,7" Margin="0,0,0,7">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <CheckBox Grid.Row="0" Content="{Binding Loc.DirtTitle}"
+                                          IsChecked="{Binding DirtRoadEnabled}" FontWeight="SemiBold" Margin="0,0,0,4" />
+                                <Grid Grid.Row="1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="90" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="46" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding Loc.IntensityLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" />
+                                    <Slider Grid.Column="1" Minimum="0" Maximum="100" Value="{Binding DirtRoadMagnitudePercent}" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="2" Text="{Binding DirtRoadMagnitudePercent, StringFormat={}{0} %}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" />
+                                </Grid>
+                            </Grid>
+                        </Border>
 
-                    <Border Grid.Row="0" Style="{StaticResource DiagnosticCardStyle}" Margin="0,0,0,10">
-                        <StackPanel>
-                            <DockPanel Margin="0,0,0,6">
-                                <TextBlock Text="{Binding Loc.PedalsSectionTitle}" Style="{StaticResource SectionHeaderTextStyle}" />
-                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
-                                    <CheckBox Content="{Binding Loc.AutoMinMaxLabel}" IsChecked="{Binding AutoCalibratePedals}" VerticalAlignment="Center" Margin="0,0,8,0" />
-                                    <Button Content="{Binding Loc.ResetButton}" Command="{Binding ResetPedalCalibrationCommand}" Padding="8,2" FontSize="11.5" />
-                                </StackPanel>
-                            </DockPanel>
-
-                            <UniformGrid Columns="3" Margin="0,0,0,8">
-                                <controls:PedalBarControl Label="{Binding Loc.GasLabel}"
-                                                          Percentage="{Binding GasPercent}"
-                                                          RawValue="{Binding GasRaw}"
-                                                          BarBrush="{DynamicResource {x:Static SystemColors.AccentColorBrushKey}}" />
-                                <controls:PedalBarControl Label="{Binding Loc.BrakeLabel}"
-                                                          Percentage="{Binding BrakePercent}"
-                                                          RawValue="{Binding BrakeRaw}"
-                                                          BarBrush="#C42B1C" />
-                                <controls:PedalBarControl Label="{Binding Loc.ClutchLabel}"
-                                                          Percentage="{Binding ClutchPercent}"
-                                                          RawValue="{Binding ClutchRaw}"
-                                                          BarBrush="#4A6FA5" />
-                            </UniformGrid>
-
-                            <DockPanel>
-                                <TextBlock Text="{Binding Loc.PedalCouplingLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" Margin="0,0,8,0" />
-                                <ComboBox ItemsSource="{Binding PedalCouplingOptions}"
-                                          SelectedItem="{Binding SelectedPedalCouplingOption}"
-                                          DisplayMemberPath="DisplayName" />
-                            </DockPanel>
-                        </StackPanel>
-                    </Border>
-
-                    <Border Grid.Row="1" Style="{StaticResource DiagnosticCardStyle}" Margin="0,0,0,10">
-                        <StackPanel>
-                            <DockPanel Margin="0,0,0,6">
-                                <TextBlock Text="{Binding Loc.RpmSectionTitle}" Style="{StaticResource SectionHeaderTextStyle}" />
-                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
-                                    <RadioButton GroupName="RpmModeGroup" Content="{Binding Loc.RpmManual}" IsChecked="{Binding IsRpmManualMode}" Margin="0,0,10,0" />
-                                    <RadioButton GroupName="RpmModeGroup" Content="{Binding Loc.RpmGasCoupled}" IsChecked="{Binding IsRpmGasCoupledMode}" />
-                                </StackPanel>
-                            </DockPanel>
+                        <Border Grid.Row="5" Background="{DynamicResource SurfaceSubtleBrush}"
+                                BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1"
+                                CornerRadius="4" Padding="9,7">
                             <Grid>
                                 <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="90" />
                                     <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="48" />
-                                </Grid.ColumnDefinitions>
-                                <Slider Grid.Column="0" Minimum="0" Maximum="100"
-                                        Value="{Binding ManualRpmPercent}"
-                                        IsEnabled="{Binding IsRpmManualMode}"
-                                        VerticalAlignment="Center" />
-                                <TextBlock Grid.Column="1"
-                                           Text="{Binding DisplayedRpmNormalized, StringFormat={}{0:P0}}"
-                                           TextAlignment="Right"
-                                           VerticalAlignment="Center"
-                                           Style="{StaticResource TabularValueTextStyle}" />
-                            </Grid>
-                        </StackPanel>
-                    </Border>
-
-                    <Border Grid.Row="2" Style="{StaticResource DiagnosticCardStyle}">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="*" />
-                            </Grid.RowDefinitions>
-
-                            <TextBlock Grid.Row="0" Text="{Binding Loc.ButtonsSectionTitle}" Style="{StaticResource SectionHeaderTextStyle}" Margin="0,0,0,6" />
-
-                            <Grid Grid.Row="1" Margin="0,0,0,8">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="8" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-
-                                <Border Grid.Column="0" Background="{DynamicResource SurfaceSubtleBrush}"
-                                        BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1"
-                                        CornerRadius="4" Padding="8,5">
-                                    <DockPanel>
-                                        <TextBlock Text="{Binding Loc.DPadPrefix}" Style="{StaticResource SubtleLabelTextStyle}" VerticalAlignment="Center" />
-                                        <TextBlock DockPanel.Dock="Right" Text="{Binding DPadLabel}"
-                                                   HorizontalAlignment="Right" FontSize="14"
-                                                   Style="{StaticResource TabularValueTextStyle}" />
-                                    </DockPanel>
-                                </Border>
-
-                                <Border Grid.Column="2" Background="{DynamicResource SurfaceSubtleBrush}"
-                                        BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1"
-                                        CornerRadius="4" Padding="8,5">
-                                    <DockPanel>
-                                        <TextBlock Text="{Binding Loc.ShifterPrefix}" Style="{StaticResource SubtleLabelTextStyle}" VerticalAlignment="Center" />
-                                        <TextBlock DockPanel.Dock="Right" Text="{Binding ShifterGear}"
-                                                   HorizontalAlignment="Right" FontSize="14"
-                                                   Style="{StaticResource TabularValueTextStyle}" />
-                                    </DockPanel>
-                                </Border>
-                            </Grid>
-
-                            <ItemsControl Grid.Row="2" ItemsSource="{Binding Buttons}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <UniformGrid Columns="5" Rows="5" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border IsHitTestVisible="False"
-                                                Margin="2"
-                                                Padding="2,3"
-                                                CornerRadius="4"
-                                                BorderThickness="1"
-                                                ToolTip="{Binding Category}">
-                                            <Border.Style>
-                                                <Style TargetType="Border">
-                                                    <Setter Property="Background" Value="{DynamicResource SurfaceSubtleBrush}" />
-                                                    <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}" />
-                                                    <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsPressed}" Value="True">
-                                                            <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.AccentColorBrushKey}}" />
-                                                            <Setter Property="BorderBrush" Value="{DynamicResource {x:Static SystemColors.AccentColorBrushKey}}" />
-                                                            <Setter Property="TextElement.Foreground" Value="White" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Border.Style>
-                                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding Label}" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Center" />
-                                                <TextBlock Text="{Binding Index, StringFormat=#{0}}" FontSize="9.5" Opacity="0.72"
-                                                           Typography.NumeralAlignment="Tabular" HorizontalAlignment="Center" />
-                                            </StackPanel>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </Grid>
-                    </Border>
-                </Grid>
-            </Grid>
-
-            <!-- ANSICHT 2: STREAM OVERLAY (OBS STUDIO - OHNE PLUGIN) -->
-            <Grid Grid.Row="2" Visibility="{Binding IsOverlayTabSelected, Converter={StaticResource BoolToVisibilityConverter}}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1.1*" />
-                    <ColumnDefinition Width="1.0*" />
-                </Grid.ColumnDefinitions>
-
-                <!-- Linke Spalte: Overlay-Steuerung & OBS-Modi -->
-                <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                    <Border Style="{StaticResource DiagnosticCardStyle}" Margin="0,0,0,10">
-                        <StackPanel>
-                            <TextBlock Text="{Binding Loc.OverlayHeaderTitle}" Style="{StaticResource SectionHeaderTextStyle}" />
-                            <TextBlock Text="{Binding Loc.OverlayHeaderDesc}"
-                                       TextWrapping="Wrap"
-                                       Margin="0,4,0,0"
-                                       Style="{StaticResource SubtleLabelTextStyle}" />
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Methode 1: Desktop Overlay Window -->
-                    <Border Style="{StaticResource DiagnosticCardStyle}" Margin="0,0,0,10">
-                        <StackPanel>
-                            <TextBlock Text="{Binding Loc.OverlayWindowCardTitle}" Style="{StaticResource SectionHeaderTextStyle}" Margin="0,0,0,8" />
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                <Button Content="{Binding DesktopOverlayButtonText}"
-                                        Command="{Binding ToggleDesktopOverlayCommand}"
-                                        Padding="14,7"
-                                        Margin="0,0,10,0" />
-                                <CheckBox Content="{Binding Loc.OverlayAlwaysOnTop}"
-                                          IsChecked="{Binding Overlay.AlwaysOnTop}"
-                                          VerticalAlignment="Center"
-                                          Margin="0,0,12,0" />
-                                <CheckBox Content="{Binding Loc.OverlayClickThrough}"
-                                          IsChecked="{Binding Overlay.ClickThrough}"
-                                          VerticalAlignment="Center" />
-                            </StackPanel>
-                            <TextBlock Text="{Binding Loc.OverlayDragHint}"
-                                       TextWrapping="Wrap"
-                                       Style="{StaticResource SubtleLabelTextStyle}" />
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Methode 2: OBS Studio Browser Source -->
-                    <Border Style="{StaticResource DiagnosticCardStyle}" Margin="0,0,0,10">
-                        <StackPanel>
-                            <TextBlock Text="{Binding Loc.OverlayBrowserCardTitle}" Style="{StaticResource SectionHeaderTextStyle}" Margin="0,0,0,8" />
-                            <CheckBox Content="{Binding Loc.OverlayBrowserEnable}"
-                                      IsChecked="{Binding Overlay.BrowserServerEnabled}"
-                                      Margin="0,0,0,8" />
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="46" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <TextBox Grid.Column="0"
-                                         IsReadOnly="True"
-                                         Text="{Binding Overlay.BrowserSourceUrl, Mode=OneWay}"
-                                         VerticalContentAlignment="Center"
-                                         Margin="0,0,8,0" />
-                                <Button Grid.Column="1"
-                                        Content="{Binding Loc.OverlayCopyUrlButton}"
-                                        Command="{Binding CopyOverlayUrlCommand}"
-                                        Padding="12,5" />
-                            </Grid>
-                            <TextBlock Text="{Binding Loc.OverlayUrlCopiedHint}"
-                                       Visibility="{Binding OverlayUrlCopiedVisible, Converter={StaticResource BoolToVisibilityConverter}}"
-                                       Margin="0,6,0,0"
-                                       FontSize="11.5"
-                                       Foreground="#2EA043" />
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Elemente & Darstellung -->
-                    <Border Style="{StaticResource DiagnosticCardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="{Binding Loc.OverlayAppearanceTitle}" Style="{StaticResource SectionHeaderTextStyle}" Margin="0,0,0,8" />
-                            <UniformGrid Columns="2" Margin="0,0,0,10">
-                                <CheckBox Content="{Binding Loc.OverlayShowWheel}" IsChecked="{Binding Overlay.ShowWheel}" Margin="0,3" />
-                                <CheckBox Content="{Binding Loc.OverlayShowPedals}" IsChecked="{Binding Overlay.ShowPedals}" Margin="0,3" />
-                                <CheckBox Content="{Binding Loc.OverlayShowPedalLabels}" IsChecked="{Binding Overlay.ShowPedalLabels}" Margin="0,3" />
-                                <CheckBox Content="{Binding Loc.OverlayShowRpmLeds}" IsChecked="{Binding Overlay.ShowRpmLeds}" Margin="0,3" />
-                                <CheckBox Content="{Binding Loc.OverlayShowGear}" IsChecked="{Binding Overlay.ShowGear}" Margin="0,3" />
-                            </UniformGrid>
-
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="135" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="52" />
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Loc.OverlayBackgroundLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" Margin="0,0,0,6" />
-                                <ComboBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"
-                                          ItemsSource="{Binding OverlayBackgroundOptions}"
-                                          SelectedItem="{Binding SelectedOverlayBackgroundOption}"
-                                          DisplayMemberPath="DisplayName"
-                                          Margin="0,0,0,6" />
-
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding Loc.OverlayScaleLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" />
-                                <Slider Grid.Row="1" Grid.Column="1" Minimum="50" Maximum="200" Value="{Binding Overlay.ScalePercent}" VerticalAlignment="Center" />
-                                <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Overlay.ScalePercent, StringFormat={}{0} %}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" />
-
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding Loc.OverlayOpacityLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" />
-                                <Slider Grid.Row="2" Grid.Column="1" Minimum="20" Maximum="100" Value="{Binding Overlay.OpacityPercent}" VerticalAlignment="Center" />
-                                <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding Overlay.OpacityPercent, StringFormat={}{0} %}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" />
-                            </Grid>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-
-                <!-- Rechte Spalte: Live-Vorschau des sauberen Overlays (ohne Gradzahlen/Rohwerte) -->
-                <Border Grid.Column="1" Style="{StaticResource DiagnosticCardStyle}">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-
-                        <TextBlock Grid.Row="0" Text="{Binding Loc.OverlayPreviewTitle}" Style="{StaticResource SectionHeaderTextStyle}" Margin="0,0,0,10" />
-
-                        <Border Grid.Row="1"
-                                CornerRadius="6"
-                                BorderBrush="{DynamicResource CardBorderBrush}"
-                                BorderThickness="1"
-                                Background="#14161A"
-                                ClipToBounds="True">
-                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="{Binding Overlay.WindowOpacity}">
-                                <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
-                                    <controls:RpmLedBarControl NormalizedRpm="{Binding DisplayedRpmNormalized}"
-                                                               Visibility="{Binding Overlay.ShowRpmLeds, Converter={StaticResource BoolToVisibilityConverter}}"
-                                                               Margin="0,0,0,10" />
-
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <controls:SteeringWheelControl Width="210"
-                                                                       Height="210"
-                                                                       CurrentAngle="{Binding CurrentAngleDegrees}"
-                                                                       ShowTargetMarker="False"
-                                                                       ShowDegreeScale="False"
-                                                                       LeftPaddlePressed="{Binding LeftPaddlePressed}"
-                                                                       RightPaddlePressed="{Binding RightPaddlePressed}"
-                                                                       Visibility="{Binding Overlay.ShowWheel, Converter={StaticResource BoolToVisibilityConverter}}"
-                                                                       Margin="0,0,18,0" />
-
-                                        <StackPanel Orientation="Horizontal"
-                                                    VerticalAlignment="Center"
-                                                    Visibility="{Binding Overlay.ShowPedals, Converter={StaticResource BoolToVisibilityConverter}}"
-                                                    Margin="0,0,14,0">
-                                            <StackPanel Margin="0,0,8,0">
-                                                <Border Width="22" Height="124" CornerRadius="4" BorderThickness="1"
-                                                        BorderBrush="#44FFFFFF" Background="#6614161A" ClipToBounds="True">
-                                                    <Rectangle VerticalAlignment="Bottom" Fill="#4A86C8" Height="{Binding ClutchBarHeight}" />
-                                                </Border>
-                                                <TextBlock Text="C" HorizontalAlignment="Center" Margin="0,4,0,0"
-                                                           FontSize="11" FontWeight="Bold" Foreground="#E6FFFFFF"
-                                                           Visibility="{Binding Overlay.ShowPedalLabels, Converter={StaticResource BoolToVisibilityConverter}}" />
-                                            </StackPanel>
-                                            <StackPanel Margin="0,0,8,0">
-                                                <Border Width="22" Height="124" CornerRadius="4" BorderThickness="1"
-                                                        BorderBrush="#44FFFFFF" Background="#6614161A" ClipToBounds="True">
-                                                    <Rectangle VerticalAlignment="Bottom" Fill="#D93829" Height="{Binding BrakeBarHeight}" />
-                                                </Border>
-                                                <TextBlock Text="B" HorizontalAlignment="Center" Margin="0,4,0,0"
-                                                           FontSize="11" FontWeight="Bold" Foreground="#E6FFFFFF"
-                                                           Visibility="{Binding Overlay.ShowPedalLabels, Converter={StaticResource BoolToVisibilityConverter}}" />
-                                            </StackPanel>
-                                            <StackPanel>
-                                                <Border Width="22" Height="124" CornerRadius="4" BorderThickness="1"
-                                                        BorderBrush="#44FFFFFF" Background="#6614161A" ClipToBounds="True">
-                                                    <Rectangle VerticalAlignment="Bottom" Fill="#2EA043" Height="{Binding GasBarHeight}" />
-                                                </Border>
-                                                <TextBlock Text="T" HorizontalAlignment="Center" Margin="0,4,0,0"
-                                                           FontSize="11" FontWeight="Bold" Foreground="#E6FFFFFF"
-                                                           Visibility="{Binding Overlay.ShowPedalLabels, Converter={StaticResource BoolToVisibilityConverter}}" />
-                                            </StackPanel>
-                                        </StackPanel>
-
-                                        <Border MinWidth="46" Height="46" CornerRadius="6" BorderThickness="1"
-                                                BorderBrush="#44FFFFFF" Background="#8814161A" VerticalAlignment="Center"
-                                                Visibility="{Binding Overlay.ShowGear, Converter={StaticResource BoolToVisibilityConverter}}">
-                                            <TextBlock Text="{Binding ShifterGear}" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                       FontSize="22" FontWeight="Bold" Typography.NumeralAlignment="Tabular" Foreground="White" />
-                                        </Border>
-                                    </StackPanel>
-                                </StackPanel>
+                                <TextBlock Grid.Column="0" Text="{Binding Loc.CollisionLabel}" VerticalAlignment="Center" FontWeight="SemiBold" />
+                                <Slider Grid.Column="1" Minimum="10" Maximum="100" Value="{Binding CollisionMagnitudePercent}" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="2" Text="{Binding CollisionMagnitudePercent, StringFormat={}{0} %}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" Margin="0,0,8,0" />
+                                <Button Grid.Column="3" Content="{Binding Loc.CollisionButton}" Command="{Binding TriggerCollisionCommand}" Padding="10,4" />
                             </Grid>
                         </Border>
                     </Grid>
                 </Border>
+
+                <Border Grid.Row="1" Style="{StaticResource DiagnosticCardStyle}">
+                    <StackPanel>
+                        <DockPanel Margin="0,0,0,8">
+                            <TextBlock Text="{Binding Loc.ControllerSectionTitle}" Style="{StaticResource SectionHeaderTextStyle}" />
+                            <Button DockPanel.Dock="Right" Content="{Binding Loc.ResetDefaultsButton}" Command="{Binding ResetPidDefaultsCommand}" Padding="8,2" FontSize="11.5" />
+                        </DockPanel>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="150" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="52" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Loc.MaxForceLabel}" VerticalAlignment="Center" FontWeight="SemiBold" />
+                            <Slider Grid.Row="0" Grid.Column="1" Minimum="10" Maximum="100" TickFrequency="10" Value="{Binding MaxMotorForcePercent}" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding MaxMotorForcePercent, StringFormat={}{0} %}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" />
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding Loc.KpLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" />
+                            <Slider Grid.Row="1" Grid.Column="1" Minimum="0.1" Maximum="3.5" SmallChange="0.05" LargeChange="0.2" Value="{Binding PidKp}" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding PidKp, StringFormat={}{0:0.00}}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" />
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding Loc.KdLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" />
+                            <Slider Grid.Row="2" Grid.Column="1" Minimum="0.00" Maximum="0.30" SmallChange="0.01" LargeChange="0.05" Value="{Binding PidKd}" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding PidKd, StringFormat={}{0:0.000}}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" />
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="{Binding Loc.DeadzoneLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" />
+                            <Slider Grid.Row="3" Grid.Column="1" Minimum="0.0" Maximum="3.0" SmallChange="0.1" Value="{Binding PidDeadzoneDegrees}" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="3" Grid.Column="2" Text="{Binding PidDeadzoneDegrees, StringFormat={}{0:0.0}°}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
             </Grid>
+
+            <!-- SPALTE 3: Pedale, RPM-LEDs, H-Shifter & 25-Tasten-Matrix -->
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" Style="{StaticResource DiagnosticCardStyle}" Margin="0,0,0,10">
+                    <StackPanel>
+                        <DockPanel Margin="0,0,0,6">
+                            <TextBlock Text="{Binding Loc.PedalsSectionTitle}" Style="{StaticResource SectionHeaderTextStyle}" />
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
+                                <CheckBox Content="{Binding Loc.AutoMinMaxLabel}" IsChecked="{Binding AutoCalibratePedals}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                <Button Content="{Binding Loc.ResetButton}" Command="{Binding ResetPedalCalibrationCommand}" Padding="8,2" FontSize="11.5" />
+                            </StackPanel>
+                        </DockPanel>
+
+                        <UniformGrid Columns="3" Margin="0,0,0,8">
+                            <controls:PedalBarControl Label="{Binding Loc.GasLabel}"
+                                                      Percentage="{Binding GasPercent}"
+                                                      RawValue="{Binding GasRaw}"
+                                                      BarBrush="{DynamicResource {x:Static SystemColors.AccentColorBrushKey}}" />
+                            <controls:PedalBarControl Label="{Binding Loc.BrakeLabel}"
+                                                      Percentage="{Binding BrakePercent}"
+                                                      RawValue="{Binding BrakeRaw}"
+                                                      BarBrush="#C42B1C" />
+                            <controls:PedalBarControl Label="{Binding Loc.ClutchLabel}"
+                                                      Percentage="{Binding ClutchPercent}"
+                                                      RawValue="{Binding ClutchRaw}"
+                                                      BarBrush="#4A6FA5" />
+                        </UniformGrid>
+
+                        <DockPanel>
+                            <TextBlock Text="{Binding Loc.PedalCouplingLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" Margin="0,0,8,0" />
+                            <ComboBox ItemsSource="{Binding PedalCouplingOptions}"
+                                      SelectedItem="{Binding SelectedPedalCouplingOption}"
+                                      DisplayMemberPath="DisplayName" />
+                        </DockPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="1" Style="{StaticResource DiagnosticCardStyle}" Margin="0,0,0,10">
+                    <StackPanel>
+                        <DockPanel Margin="0,0,0,6">
+                            <TextBlock Text="{Binding Loc.RpmSectionTitle}" Style="{StaticResource SectionHeaderTextStyle}" />
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
+                                <RadioButton GroupName="RpmModeGroup" Content="{Binding Loc.RpmManual}" IsChecked="{Binding IsRpmManualMode}" Margin="0,0,10,0" />
+                                <RadioButton GroupName="RpmModeGroup" Content="{Binding Loc.RpmGasCoupled}" IsChecked="{Binding IsRpmGasCoupledMode}" />
+                            </StackPanel>
+                        </DockPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="48" />
+                            </Grid.ColumnDefinitions>
+                            <Slider Grid.Column="0" Minimum="0" Maximum="100"
+                                    Value="{Binding ManualRpmPercent}"
+                                    IsEnabled="{Binding IsRpmManualMode}"
+                                    VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding DisplayedRpmNormalized, StringFormat={}{0:P0}}"
+                                       TextAlignment="Right"
+                                       VerticalAlignment="Center"
+                                       Style="{StaticResource TabularValueTextStyle}" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="2" Style="{StaticResource DiagnosticCardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Text="{Binding Loc.ButtonsSectionTitle}" Style="{StaticResource SectionHeaderTextStyle}" Margin="0,0,0,6" />
+
+                        <Grid Grid.Row="1" Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="8" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" Background="{DynamicResource SurfaceSubtleBrush}"
+                                    BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1"
+                                    CornerRadius="4" Padding="8,5">
+                                <DockPanel>
+                                    <TextBlock Text="{Binding Loc.DPadPrefix}" Style="{StaticResource SubtleLabelTextStyle}" VerticalAlignment="Center" />
+                                    <TextBlock DockPanel.Dock="Right" Text="{Binding DPadLabel}"
+                                               HorizontalAlignment="Right" FontSize="14"
+                                               Style="{StaticResource TabularValueTextStyle}" />
+                                </DockPanel>
+                            </Border>
+
+                            <Border Grid.Column="2" Background="{DynamicResource SurfaceSubtleBrush}"
+                                    BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1"
+                                    CornerRadius="4" Padding="8,5">
+                                <DockPanel>
+                                    <TextBlock Text="{Binding Loc.ShifterPrefix}" Style="{StaticResource SubtleLabelTextStyle}" VerticalAlignment="Center" />
+                                    <TextBlock DockPanel.Dock="Right" Text="{Binding ShifterGear}"
+                                               HorizontalAlignment="Right" FontSize="14"
+                                               Style="{StaticResource TabularValueTextStyle}" />
+                                </DockPanel>
+                            </Border>
+                        </Grid>
+
+                        <ItemsControl Grid.Row="2" ItemsSource="{Binding Buttons}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Columns="5" Rows="5" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border IsHitTestVisible="False"
+                                            Margin="2"
+                                            Padding="2,3"
+                                            CornerRadius="4"
+                                            BorderThickness="1"
+                                            ToolTip="{Binding Category}">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="{DynamicResource SurfaceSubtleBrush}" />
+                                                <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}" />
+                                                <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsPressed}" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.AccentColorBrushKey}}" />
+                                                        <Setter Property="BorderBrush" Value="{DynamicResource {x:Static SystemColors.AccentColorBrushKey}}" />
+                                                        <Setter Property="TextElement.Foreground" Value="White" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Label}" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                                            <TextBlock Text="{Binding Index, StringFormat=#{0}}" FontSize="9.5" Opacity="0.72"
+                                                       Typography.NumeralAlignment="Tabular" HorizontalAlignment="Center" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <!-- ANSICHT 3: STREAM OVERLAY (OBS STUDIO - OHNE PLUGIN) -->
+        <Grid Grid.Row="3"
+              Margin="20,10,20,14"
+              Visibility="{Binding IsOverlayTabSelected, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.1*" />
+                <ColumnDefinition Width="1.0*" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                <Border Style="{StaticResource DiagnosticCardStyle}" Margin="0,0,0,10">
+                    <StackPanel>
+                        <TextBlock Text="{Binding Loc.OverlayHeaderTitle}" Style="{StaticResource SectionHeaderTextStyle}" />
+                        <TextBlock Text="{Binding Loc.OverlayHeaderDesc}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,4,0,0"
+                                   Style="{StaticResource SubtleLabelTextStyle}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource DiagnosticCardStyle}" Margin="0,0,0,10">
+                    <StackPanel>
+                        <TextBlock Text="{Binding Loc.OverlayWindowCardTitle}" Style="{StaticResource SectionHeaderTextStyle}" Margin="0,0,0,8" />
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <Button Content="{Binding DesktopOverlayButtonText}"
+                                    Command="{Binding ToggleDesktopOverlayCommand}"
+                                    Padding="14,7"
+                                    Margin="0,0,10,0" />
+                            <CheckBox Content="{Binding Loc.OverlayAlwaysOnTop}"
+                                      IsChecked="{Binding Overlay.AlwaysOnTop}"
+                                      VerticalAlignment="Center"
+                                      Margin="0,0,12,0" />
+                            <CheckBox Content="{Binding Loc.OverlayClickThrough}"
+                                      IsChecked="{Binding Overlay.ClickThrough}"
+                                      VerticalAlignment="Center" />
+                        </StackPanel>
+                        <TextBlock Text="{Binding Loc.OverlayDragHint}"
+                                   TextWrapping="Wrap"
+                                   Style="{StaticResource SubtleLabelTextStyle}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource DiagnosticCardStyle}" Margin="0,0,0,10">
+                    <StackPanel>
+                        <TextBlock Text="{Binding Loc.OverlayBrowserCardTitle}" Style="{StaticResource SectionHeaderTextStyle}" Margin="0,0,0,8" />
+                        <CheckBox Content="{Binding Loc.OverlayBrowserEnable}"
+                                  IsChecked="{Binding Overlay.BrowserServerEnabled}"
+                                  Margin="0,0,0,8" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0"
+                                     IsReadOnly="True"
+                                     Text="{Binding Overlay.BrowserSourceUrl, Mode=OneWay}"
+                                     VerticalContentAlignment="Center"
+                                     Margin="0,0,8,0" />
+                            <Button Grid.Column="1"
+                                    Content="{Binding Loc.OverlayCopyUrlButton}"
+                                    Command="{Binding CopyOverlayUrlCommand}"
+                                    Padding="12,5" />
+                        </Grid>
+                        <TextBlock Text="{Binding Loc.OverlayUrlCopiedHint}"
+                                   Visibility="{Binding OverlayUrlCopiedVisible, Converter={StaticResource BoolToVisibilityConverter}}"
+                                   Margin="0,6,0,0"
+                                   FontSize="11.5"
+                                   Foreground="#2EA043" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource DiagnosticCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding Loc.OverlayAppearanceTitle}" Style="{StaticResource SectionHeaderTextStyle}" Margin="0,0,0,8" />
+                        <UniformGrid Columns="2" Margin="0,0,0,10">
+                            <CheckBox Content="{Binding Loc.OverlayShowWheel}" IsChecked="{Binding Overlay.ShowWheel}" Margin="0,3" />
+                            <CheckBox Content="{Binding Loc.OverlayShowPedals}" IsChecked="{Binding Overlay.ShowPedals}" Margin="0,3" />
+                            <CheckBox Content="{Binding Loc.OverlayShowPedalLabels}" IsChecked="{Binding Overlay.ShowPedalLabels}" Margin="0,3" />
+                            <CheckBox Content="{Binding Loc.OverlayShowRpmLeds}" IsChecked="{Binding Overlay.ShowRpmLeds}" Margin="0,3" />
+                            <CheckBox Content="{Binding Loc.OverlayShowGear}" IsChecked="{Binding Overlay.ShowGear}" Margin="0,3" />
+                        </UniformGrid>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="135" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="52" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Loc.OverlayBackgroundLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" Margin="0,0,0,6" />
+                            <ComboBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"
+                                      ItemsSource="{Binding OverlayBackgroundOptions}"
+                                      SelectedItem="{Binding SelectedOverlayBackgroundOption}"
+                                      DisplayMemberPath="DisplayName"
+                                      Margin="0,0,0,6" />
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding Loc.OverlayScaleLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" />
+                            <Slider Grid.Row="1" Grid.Column="1" Minimum="50" Maximum="200" Value="{Binding Overlay.ScalePercent}" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Overlay.ScalePercent, StringFormat={}{0} %}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" />
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding Loc.OverlayOpacityLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" />
+                            <Slider Grid.Row="2" Grid.Column="1" Minimum="20" Maximum="100" Value="{Binding Overlay.OpacityPercent}" VerticalAlignment="Center" />
+                            <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding Overlay.OpacityPercent, StringFormat={}{0} %}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <Border Grid.Column="1" Style="{StaticResource DiagnosticCardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="{Binding Loc.OverlayPreviewTitle}" Style="{StaticResource SectionHeaderTextStyle}" Margin="0,0,0,10" />
+
+                    <Border Grid.Row="1"
+                            CornerRadius="6"
+                            BorderBrush="{DynamicResource CardBorderBrush}"
+                            BorderThickness="1"
+                            Background="#14161A"
+                            ClipToBounds="True">
+                        <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="{Binding Overlay.WindowOpacity}">
+                            <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                                <controls:RpmLedBarControl NormalizedRpm="{Binding DisplayedRpmNormalized}"
+                                                           Visibility="{Binding Overlay.ShowRpmLeds, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                           Margin="0,0,0,10" />
+
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <controls:SteeringWheelControl Width="210"
+                                                                   Height="210"
+                                                                   CurrentAngle="{Binding CurrentAngleDegrees}"
+                                                                   ShowTargetMarker="False"
+                                                                   ShowDegreeScale="False"
+                                                                   LeftPaddlePressed="{Binding LeftPaddlePressed}"
+                                                                   RightPaddlePressed="{Binding RightPaddlePressed}"
+                                                                   Visibility="{Binding Overlay.ShowWheel, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                                   Margin="0,0,18,0" />
+
+                                    <StackPanel Orientation="Horizontal"
+                                                VerticalAlignment="Center"
+                                                Visibility="{Binding Overlay.ShowPedals, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                Margin="0,0,14,0">
+                                        <StackPanel Margin="0,0,8,0">
+                                            <Border Width="22" Height="124" CornerRadius="4" BorderThickness="1"
+                                                    BorderBrush="#44FFFFFF" Background="#6614161A" ClipToBounds="True">
+                                                <Rectangle VerticalAlignment="Bottom" Fill="#4A86C8" Height="{Binding ClutchBarHeight}" />
+                                            </Border>
+                                            <TextBlock Text="C" HorizontalAlignment="Center" Margin="0,4,0,0"
+                                                       FontSize="11" FontWeight="Bold" Foreground="#E6FFFFFF"
+                                                       Visibility="{Binding Overlay.ShowPedalLabels, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                        </StackPanel>
+                                        <StackPanel Margin="0,0,8,0">
+                                            <Border Width="22" Height="124" CornerRadius="4" BorderThickness="1"
+                                                    BorderBrush="#44FFFFFF" Background="#6614161A" ClipToBounds="True">
+                                                <Rectangle VerticalAlignment="Bottom" Fill="#D93829" Height="{Binding BrakeBarHeight}" />
+                                            </Border>
+                                            <TextBlock Text="B" HorizontalAlignment="Center" Margin="0,4,0,0"
+                                                       FontSize="11" FontWeight="Bold" Foreground="#E6FFFFFF"
+                                                       Visibility="{Binding Overlay.ShowPedalLabels, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                        </StackPanel>
+                                        <StackPanel>
+                                            <Border Width="22" Height="124" CornerRadius="4" BorderThickness="1"
+                                                    BorderBrush="#44FFFFFF" Background="#6614161A" ClipToBounds="True">
+                                                <Rectangle VerticalAlignment="Bottom" Fill="#2EA043" Height="{Binding GasBarHeight}" />
+                                            </Border>
+                                            <TextBlock Text="T" HorizontalAlignment="Center" Margin="0,4,0,0"
+                                                       FontSize="11" FontWeight="Bold" Foreground="#E6FFFFFF"
+                                                       Visibility="{Binding Overlay.ShowPedalLabels, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <Border MinWidth="46" Height="46" CornerRadius="6" BorderThickness="1"
+                                            BorderBrush="#44FFFFFF" Background="#8814161A" VerticalAlignment="Center"
+                                            Visibility="{Binding Overlay.ShowGear, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <TextBlock Text="{Binding ShifterGear}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                   FontSize="22" FontWeight="Bold" Typography.NumeralAlignment="Tabular" Foreground="White" />
+                                    </Border>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
         </Grid>
     </Grid>
 </Window>

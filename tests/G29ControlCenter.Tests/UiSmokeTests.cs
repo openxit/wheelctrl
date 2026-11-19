@@ -37,16 +37,24 @@ public sealed class UiSmokeTests
                     var vm = Assert.IsType<MainViewModel>(window.DataContext);
                     Assert.Equal(25, vm.Buttons.Count);
 
-                    var layoutSize = new Size(1560, 880);
+                    var layoutSize = new Size(1500, 880);
                     window.Measure(layoutSize);
                     window.Arrange(new Rect(layoutSize));
                     window.UpdateLayout();
 
                     Assert.Equal("WheelCtrl", window.Title);
+                    Assert.True(vm.IsDevicesTabSelected);
+                    Assert.True(vm.IsHomeGridView);
+
+                    vm.IsHomeListView = true;
+                    Assert.False(vm.IsHomeGridView);
+
+                    vm.OpenControlsTabCommand.Execute(null);
+                    Assert.True(vm.IsControlsTabSelected);
 
                     vm.InitializeHardware(nint.Zero);
 
-                    vm.SetOperatingRangeCommand.Execute("540");
+                    vm.SelectedProfileOption = vm.ProfileOptions[1]; // Drift 540°
                     Assert.Equal(540, vm.OperatingRangeDegrees);
 
                     vm.SetQuickAngleCommand.Execute("90");

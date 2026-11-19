@@ -10,6 +10,37 @@ using G29ControlCenter.Overlay;
 
 namespace G29ControlCenter.ViewModels;
 
+public enum HubSection
+{
+    Devices = 0,
+    Controls = 1,
+    Overlay = 2
+}
+
+public sealed class DeviceProfileOption : ObservableObject
+{
+    private readonly Func<string> _labelSelector;
+
+    public DeviceProfileOption(string id, Func<string> labelSelector, int operatingRange, double kp, double kd, int maxForce)
+    {
+        Id = id;
+        _labelSelector = labelSelector;
+        OperatingRange = operatingRange;
+        Kp = kp;
+        Kd = kd;
+        MaxForce = maxForce;
+    }
+
+    public string Id { get; }
+    public int OperatingRange { get; }
+    public double Kp { get; }
+    public double Kd { get; }
+    public int MaxForce { get; }
+    public string DisplayName => _labelSelector();
+
+    public void RefreshLabel() => OnPropertyChanged(nameof(DisplayName));
+}
+
 public sealed class PedalCouplingOption : ObservableObject
 {
     private readonly Func<string> _labelSelector;
@@ -39,7 +70,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private bool _isTargetInputFocused;
 
     // Hub-Navigation & Overlay-Status
-    private bool _isControlsTabSelected = true;
+    private HubSection _activeSection = HubSection.Devices;
+    private bool _isHomeGridView = true;
+    private DeviceProfileOption _selectedProfileOption;
     private bool _isDesktopOverlayOpen;
     private bool _overlayUrlCopiedVisible;
     private string _browserServerError = string.Empty;
@@ -135,6 +168,14 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         ];
         _selectedOverlayBackgroundOption = OverlayBackgroundOptions[0];
 
+        ProfileOptions =
+        [
+            new("standard", () => Loc.ProfileStandardName, 900, 1.25, 0.085, 50),
+            new("drift", () => Loc.ProfileDriftName, 540, 1.45, 0.070, 60),
+            new("formula", () => Loc.ProfileFormulaName, 360, 1.65, 0.095, 55)
+        ];
+        _selectedProfileOption = ProfileOptions[0];
+
         Overlay.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(OverlaySettings.BrowserServerEnabled))
@@ -153,6 +194,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             {
                 bgOpt.RefreshLabel();
             }
+            foreach (DeviceProfileOption profOpt in ProfileOptions)
+            {
+                profOpt.RefreshLabel();
+            }
             OnPropertyChanged(nameof(HubPrimaryDeviceSubtitle));
             OnPropertyChanged(nameof(DesktopOverlayButtonText));
             PullLatestTelemetry();
@@ -168,7 +213,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         ResetPedalCalibrationCommand = new RelayCommand(() => _hardwareService.ResetPedalCalibration());
         ToggleDesktopOverlayCommand = new RelayCommand(ToggleDesktopOverlay);
         CopyOverlayUrlCommand = new RelayCommand(CopyOverlayUrl);
-        OpenOverlayTabCommand = new RelayCommand(() => IsOverlayTabSelected = true);
+        OpenDevicesTabCommand = new RelayCommand(() => ActiveSection = HubSection.Devices);
+        OpenControlsTabCommand = new RelayCommand(() => ActiveSection = HubSection.Controls);
+        OpenOverlayTabCommand = new RelayCommand(() => ActiveSection = HubSection.Overlay);
 
         _uiTimer = new DispatcherTimer(DispatcherPriority.Render)
         {
@@ -182,6 +229,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public ObservableCollection<ButtonItemModel> Buttons { get; }
     public IReadOnlyList<PedalCouplingOption> PedalCouplingOptions { get; }
     public IReadOnlyList<OverlayBackgroundOption> OverlayBackgroundOptions { get; }
+    public IReadOnlyList<DeviceProfileOption> ProfileOptions { get; }
 
     public RelayCommand EmergencyStopCommand { get; }
     public RelayCommand ReconnectHardwareCommand { get; }
@@ -193,24 +241,91 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public RelayCommand ResetPedalCalibrationCommand { get; }
     public RelayCommand ToggleDesktopOverlayCommand { get; }
     public RelayCommand CopyOverlayUrlCommand { get; }
+    public RelayCommand OpenDevicesTabCommand { get; }
+    public RelayCommand OpenControlsTabCommand { get; }
     public RelayCommand OpenOverlayTabCommand { get; }
+
+    public HubSection ActiveSection
+    {
+        get => _activeSection;
+        set
+        {
+            if (SetProperty(ref _activeSection, value))
+            {
+                OnPropertyChanged(nameof(IsDevicesTabSelected));
+                OnPropertyChanged(nameof(IsControlsTabSelected));
+                OnPropertyChanged(nameof(IsOverlayTabSelected));
+            }
+        }
+    }
+
+    public bool IsDevicesTabSelected
+    {
+        get => _activeSection == HubSection.Devices;
+        set
+        {
+            if (value)
+            {
+                ActiveSection = HubSection.Devices;
+            }
+        }
+    }
 
     public bool IsControlsTabSelected
     {
-        get => _isControlsTabSelected;
+        get => _activeSection == HubSection.Controls;
         set
         {
-            if (SetProperty(ref _isControlsTabSelected, value))
+            if (value)
             {
-                OnPropertyChanged(nameof(IsOverlayTabSelected));
+                ActiveSection = HubSection.Controls;
             }
         }
     }
 
     public bool IsOverlayTabSelected
     {
-        get => !_isControlsTabSelected;
-        set => IsControlsTabSelected = !value;
+        get => _activeSection == HubSection.Overlay;
+        set
+        {
+            if (value)
+            {
+                ActiveSection = HubSection.Overlay;
+            }
+        }
+    }
+
+    public bool IsHomeGridView
+    {
+        get => _isHomeGridView;
+        set
+        {
+            if (SetProperty(ref _isHomeGridView, value))
+            {
+                OnPropertyChanged(nameof(IsHomeListView));
+            }
+        }
+    }
+
+    public bool IsHomeListView
+    {
+        get => !_isHomeGridView;
+        set => IsHomeGridView = !value;
+    }
+
+    public DeviceProfileOption SelectedProfileOption
+    {
+        get => _selectedProfileOption;
+        set
+        {
+            if (SetProperty(ref _selectedProfileOption, value) && value is not null)
+            {
+                OperatingRangeDegrees = value.OperatingRange;
+                PidKp = value.Kp;
+                PidKd = value.Kd;
+                MaxMotorForcePercent = value.MaxForce;
+            }
+        }
     }
 
     public bool IsDesktopOverlayOpen

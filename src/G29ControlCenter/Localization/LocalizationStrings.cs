@@ -61,6 +61,17 @@ public sealed class LocalizationStrings : ObservableObject
         ? "Open-Source Racing Hardware Hub & Telemetry"
         : "Open-Source Racing Hardware Hub & Telemetrie";
 
+    // Top Navigation & Home View
+    public string NavDevicesTitle => En ? "Devices" : "Geräte";
+    public string NavControlsTitle => En ? "Controls" : "Steuerung";
+    public string NavOverlayTitle => En ? "Stream Overlay" : "Stream-Overlay";
+    public string HomeCardClickHint => En ? "Click card to configure wheel, FFB & pedals" : "Klicken zum Konfigurieren von Lenkrad, FFB & Pedalen";
+    public string HomeOpenControlsButton => En ? "Configure" : "Konfigurieren";
+    public string ProfilePrefix => En ? "Profile:" : "Profil:";
+    public string ProfileStandardName => En ? "Standard (900°)" : "Standard (900°)";
+    public string ProfileDriftName => En ? "Drift / Rally (540°)" : "Drift / Rallye (540°)";
+    public string ProfileFormulaName => En ? "GT / Formula (360°)" : "GT / Formel (360°)";
+
     // Hub Sidebar & Navigation
     public string HubDevicesHeader => En ? "DEVICES" : "GERÄTE";
     public string HubPrimaryDeviceName => "G29 Driving Force";
