@@ -1,0 +1,29 @@
+name: Build and Test (.NET 9 WPF)
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore G29ControlCenter.sln -p:Platform=x64
+
+      - name: Build Release (x64)
+        run: dotnet build G29ControlCenter.sln -c Release -p:Platform=x64 --no-restore
+
+      - name: Run unit tests
+        run: dotnet test tests/G29ControlCenter.Tests/G29ControlCenter.Tests.csproj -c Release -p:Platform=x64 --no-build --verbosity normal

@@ -1,0 +1,28 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35527.113
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "G29ControlCenter", "src\G29ControlCenter\G29ControlCenter.csproj", "{B7E43A10-5F3C-4B8F-9C21-101010101001}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "G29ControlCenter.Tests", "tests\G29ControlCenter.Tests\G29ControlCenter.Tests.csproj", "{B7E43A10-5F3C-4B8F-9C21-101010101002}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B7E43A10-5F3C-4B8F-9C21-101010101001}.Debug|x64.ActiveCfg = Debug|x64
+		{B7E43A10-5F3C-4B8F-9C21-101010101001}.Debug|x64.Build.0 = Debug|x64
+		{B7E43A10-5F3C-4B8F-9C21-101010101001}.Release|x64.ActiveCfg = Release|x64
+		{B7E43A10-5F3C-4B8F-9C21-101010101001}.Release|x64.Build.0 = Release|x64
+		{B7E43A10-5F3C-4B8F-9C21-101010101002}.Debug|x64.ActiveCfg = Debug|x64
+		{B7E43A10-5F3C-4B8F-9C21-101010101002}.Debug|x64.Build.0 = Debug|x64
+		{B7E43A10-5F3C-4B8F-9C21-101010101002}.Release|x64.ActiveCfg = Release|x64
+		{B7E43A10-5F3C-4B8F-9C21-101010101002}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

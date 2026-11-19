@@ -1,0 +1,111 @@
+<Window x:Class="G29ControlCenter.StreamOverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:G29ControlCenter.Controls"
+        Title="WheelCtrl Stream Overlay"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        SizeToContent="WidthAndHeight"
+        Background="{Binding Overlay.WindowBackgroundBrush}"
+        Topmost="{Binding Overlay.AlwaysOnTop}"
+        Opacity="{Binding Overlay.WindowOpacity}"
+        MouseLeftButtonDown="OnOverlayMouseLeftButtonDown">
+
+    <Grid Margin="14">
+        <Grid.LayoutTransform>
+            <ScaleTransform ScaleX="{Binding Overlay.ScaleFactor}"
+                            ScaleY="{Binding Overlay.ScaleFactor}" />
+        </Grid.LayoutTransform>
+
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+            <!-- RPM Shift LEDs (ohne Zahlen) -->
+            <controls:RpmLedBarControl NormalizedRpm="{Binding DisplayedRpmNormalized}"
+                                       Visibility="{Binding Overlay.ShowRpmLeds, Converter={StaticResource BoolToVisibilityConverter}}"
+                                       Margin="0,0,0,8" />
+
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <!-- Sauberes Vektor-Lenkrad OHNE Gradangaben oder Skala -->
+                <controls:SteeringWheelControl Width="180"
+                                               Height="180"
+                                               CurrentAngle="{Binding CurrentAngleDegrees}"
+                                               ShowTargetMarker="False"
+                                               ShowDegreeScale="False"
+                                               LeftPaddlePressed="{Binding LeftPaddlePressed}"
+                                               RightPaddlePressed="{Binding RightPaddlePressed}"
+                                               Visibility="{Binding Overlay.ShowWheel, Converter={StaticResource BoolToVisibilityConverter}}"
+                                               Margin="0,0,14,0" />
+
+                <!-- Transparente Live-Pedalbalken (ohne Rohwerte) -->
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center"
+                            Visibility="{Binding Overlay.ShowPedals, Converter={StaticResource BoolToVisibilityConverter}}"
+                            Margin="0,0,12,0">
+                    <!-- Kupplung -->
+                    <StackPanel Margin="0,0,8,0">
+                        <Border Width="22" Height="124" CornerRadius="4" BorderThickness="1"
+                                BorderBrush="#44FFFFFF" Background="#6614161A" ClipToBounds="True">
+                            <Grid>
+                                <Rectangle VerticalAlignment="Bottom"
+                                           Fill="#4A86C8"
+                                           Height="{Binding ClutchBarHeight}" />
+                            </Grid>
+                        </Border>
+                        <TextBlock Text="C" HorizontalAlignment="Center" Margin="0,4,0,0"
+                                   FontSize="11" FontWeight="Bold" Foreground="#E6FFFFFF"
+                                   Visibility="{Binding Overlay.ShowPedalLabels, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    </StackPanel>
+
+                    <!-- Bremse -->
+                    <StackPanel Margin="0,0,8,0">
+                        <Border Width="22" Height="124" CornerRadius="4" BorderThickness="1"
+                                BorderBrush="#44FFFFFF" Background="#6614161A" ClipToBounds="True">
+                            <Grid>
+                                <Rectangle VerticalAlignment="Bottom"
+                                           Fill="#D93829"
+                                           Height="{Binding BrakeBarHeight}" />
+                            </Grid>
+                        </Border>
+                        <TextBlock Text="B" HorizontalAlignment="Center" Margin="0,4,0,0"
+                                   FontSize="11" FontWeight="Bold" Foreground="#E6FFFFFF"
+                                   Visibility="{Binding Overlay.ShowPedalLabels, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    </StackPanel>
+
+                    <!-- Gas -->
+                    <StackPanel>
+                        <Border Width="22" Height="124" CornerRadius="4" BorderThickness="1"
+                                BorderBrush="#44FFFFFF" Background="#6614161A" ClipToBounds="True">
+                            <Grid>
+                                <Rectangle VerticalAlignment="Bottom"
+                                           Fill="#2EA043"
+                                           Height="{Binding GasBarHeight}" />
+                            </Grid>
+                        </Border>
+                        <TextBlock Text="T" HorizontalAlignment="Center" Margin="0,4,0,0"
+                                   FontSize="11" FontWeight="Bold" Foreground="#E6FFFFFF"
+                                   Visibility="{Binding Overlay.ShowPedalLabels, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Shifter Gang -->
+                <Border MinWidth="44"
+                        Height="44"
+                        CornerRadius="6"
+                        BorderThickness="1"
+                        BorderBrush="#44FFFFFF"
+                        Background="#8814161A"
+                        VerticalAlignment="Center"
+                        Visibility="{Binding Overlay.ShowGear, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <TextBlock Text="{Binding ShifterGear}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               FontSize="22"
+                               FontWeight="Bold"
+                               Typography.NumeralAlignment="Tabular"
+                               Foreground="White" />
+                </Border>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,22 @@
+## Build & Publish outputs
+bin/
+obj/
+dist/
+publish/
+out/
+
+## Visual Studio / Rider / VS Code
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Native binary (resolved automatically from Logitech G HUB at runtime)
+Native/x64/*.dll
+
+## OS / Misc
+Thumbs.db
+.DS_Store
+*.log

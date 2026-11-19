@@ -1,0 +1,188 @@
+using G29ControlCenter.ViewModels;
+
+namespace G29ControlCenter.Localization;
+
+public enum AppLanguage
+{
+    De = 0,
+    En = 1
+}
+
+/// <summary>
+/// Zentrale, zur Laufzeit umschaltbare Lokalisierung für Deutsch und Englisch.
+/// </summary>
+public sealed class LocalizationStrings : ObservableObject
+{
+    private AppLanguage _language = AppLanguage.En;
+
+    public AppLanguage Language
+    {
+        get => _language;
+        set
+        {
+            if (SetProperty(ref _language, value))
+            {
+                OnPropertyChanged(nameof(IsGerman));
+                OnPropertyChanged(nameof(IsEnglish));
+                OnPropertyChanged(string.Empty);
+            }
+        }
+    }
+
+    public bool IsGerman
+    {
+        get => _language == AppLanguage.De;
+        set
+        {
+            if (value)
+            {
+                Language = AppLanguage.De;
+            }
+        }
+    }
+
+    public bool IsEnglish
+    {
+        get => _language == AppLanguage.En;
+        set
+        {
+            if (value)
+            {
+                Language = AppLanguage.En;
+            }
+        }
+    }
+
+    private bool En => _language == AppLanguage.En;
+
+    public string WindowTitle => "WheelCtrl";
+    public string AppTitle => "WheelCtrl";
+    public string AppSubtitle => En
+        ? "Open-Source Racing Hardware Hub & Telemetry"
+        : "Open-Source Racing Hardware Hub & Telemetrie";
+
+    // Hub Sidebar & Navigation
+    public string HubDevicesHeader => En ? "DEVICES" : "GERÄTE";
+    public string HubPrimaryDeviceName => "G29 Driving Force";
+    public string HubPrimaryDeviceSubConnected => En ? "Connected • FFB Ready" : "Verbunden • FFB bereit";
+    public string HubPrimaryDeviceSubWaiting => En ? "Waiting for USB" : "Warte auf USB";
+    public string HubExtensibleTitle => En ? "More Devices" : "Weitere Geräte";
+    public string HubExtensibleSub => En ? "Modular SDK architecture" : "Modulare SDK-Architektur";
+    public string TabControlsTitle => En ? "Controls & Telemetry" : "Steuerung & Telemetrie";
+    public string TabOverlayTitle => En ? "Stream Overlay (OBS)" : "Stream-Overlay (OBS)";
+
+    // Stream Overlay Page
+    public string OverlayHeaderTitle => En ? "Stream Overlay for OBS Studio (No Plugin Required)" : "Stream-Overlay für OBS Studio (ohne Plugin)";
+    public string OverlayHeaderDesc => En
+        ? "Show live steering wheel, pedals, RPM LEDs, and gear in OBS Studio without degree numbers or raw values."
+        : "Zeigt Lenkrad, Pedale, RPM-LEDs und Gang live in OBS Studio – ohne Gradangaben oder Rohwerte.";
+    public string OverlayWindowCardTitle => En ? "Desktop Overlay Window (OBS Window Capture)" : "Desktop-Overlay-Fenster (OBS Fensteraufnahme)";
+    public string OverlayOpenButton => En ? "Open Desktop Overlay" : "Desktop-Overlay öffnen";
+    public string OverlayCloseButton => En ? "Close Desktop Overlay" : "Desktop-Overlay schließen";
+    public string OverlayDragHint => En
+        ? "Drag the overlay window anywhere with the mouse. Enable 'Click-Through' to lock it while gaming."
+        : "Fenster beliebig per Maus verschieben. 'Klick-Durchlass' sperrt es während des Spielens.";
+    public string OverlayBrowserCardTitle => En ? "OBS Browser Source (True Alpha Transparency)" : "OBS Browser-Quelle (echte Alpha-Transparenz)";
+    public string OverlayBrowserEnable => En ? "Enable local Browser Source server" : "Lokalen Browser-Source-Server aktivieren";
+    public string OverlayCopyUrlButton => En ? "Copy URL" : "URL kopieren";
+    public string OverlayUrlCopiedHint => En ? "Copied! Add as 'Browser' source in OBS Studio." : "Kopiert! In OBS Studio als 'Browser'-Quelle einfügen.";
+    public string OverlayAppearanceTitle => En ? "Overlay Elements & Appearance" : "Overlay-Elemente & Darstellung";
+    public string OverlayShowWheel => En ? "Steering wheel (no degree scale)" : "Lenkrad (ohne Gradskala)";
+    public string OverlayShowPedals => En ? "Transparent pedals (Throttle / Brake / Clutch)" : "Transparente Pedale (Gas / Bremse / Kupplung)";
+    public string OverlayShowPedalLabels => En ? "Short pedal letters (T / B / C)" : "Kurze Pedal-Kürzel (T / B / C)";
+    public string OverlayShowRpmLeds => En ? "RPM shift LEDs" : "RPM-Schalt-LEDs";
+    public string OverlayShowGear => En ? "Shifter gear indicator" : "Shifter-Ganganzeige";
+    public string OverlayBackgroundLabel => En ? "Window background:" : "Fenster-Hintergrund:";
+    public string OverlayScaleLabel => En ? "Scale" : "Größe";
+    public string OverlayOpacityLabel => En ? "Opacity" : "Deckkraft";
+    public string OverlayAlwaysOnTop => En ? "Always on top" : "Immer im Vordergrund";
+    public string OverlayClickThrough => En ? "Lock position (Click-through)" : "Position sperren (Klick-Durchlass)";
+    public string OverlayPreviewTitle => En ? "Live Overlay Preview" : "Live-Overlay-Vorschau";
+    public string OverlayBgTransparent => En ? "Transparent (Alpha)" : "Transparent (Alpha)";
+    public string OverlayBgChromaGreen => En ? "Chroma Key Green (#00FF00)" : "Chroma-Key Grün (#00FF00)";
+    public string OverlayBgChromaBlue => En ? "Chroma Key Blue (#0000FF)" : "Chroma-Key Blau (#0000FF)";
+    public string OverlayBgDark => En ? "Dark Solid (#181A1F)" : "Dunkel (#181A1F)";
+
+    public string ReconnectButton => En ? "Reconnect" : "Neu verbinden";
+    public string StopAllMotorsButton => En ? "Stop All Motors" : "Alle Motoren stoppen";
+    public string CombinedPedalsBanner => En
+        ? "Note: 'Combined Pedals' is enabled in Logitech G HUB. Disable it for independent throttle and brake axes."
+        : "Hinweis: In Logitech G HUB ist 'Kombinierte Pedale' aktiviert. Deaktivieren Sie diese Option für unabhängige Gas- und Bremsachsen.";
+
+    // Status Badges
+    public string DeviceConnectedPrefix => En ? "Device" : "Gerät";
+    public string DeviceWaiting => En
+        ? "Device: Not detected — check USB / PS4 switch / G HUB"
+        : "Gerät: Nicht erkannt — USB / PS4-Schalter / G HUB prüfen";
+    public string DeviceDriverMissing => En
+        ? "Device: Logitech G HUB / SDK driver missing"
+        : "Gerät: Logitech G HUB / SDK-Treiber fehlt";
+    public string DeviceInitializing => En ? "Device: Initializing..." : "Gerät: Initialisiere...";
+
+    public string FocusActive => En ? "Focus: Active (FFB ready)" : "Fokus: Aktiv (FFB bereit)";
+    public string FocusPaused => En ? "Focus: Window in background (FFB paused)" : "Fokus: Fenster im Hintergrund (FFB pausiert)";
+
+    public string PowerVerified => En ? "24V Motors: Response OK" : "24V-Motoren: Reaktion OK";
+    public string PowerNoResponse => En ? "24V Motors: No response!" : "24V-Motoren: Keine Reaktion!";
+    public string PowerReady => En ? "24V Motors: Ready" : "24V-Motoren: Bereit";
+    public string PowerDisconnected => En ? "24V Motors: Disconnected" : "24V-Motoren: Getrennt";
+
+    // Column 1: Steering
+    public string SteeringSectionTitle => En ? "Steering Control & Angle Telemetry" : "Lenkrad-Steuerung & Winkel-Telemetrie";
+    public string OperatingRangePrefix => En ? "Range:" : "Arbeitsbereich:";
+    public string ModeFreewheel => En ? "Read (Freewheel / Telemetry)" : "Lesen (Freilauf / Telemetrie)";
+    public string ModeMotorPositioning => En ? "Motor Positioning (Target Angle)" : "Motor-Positionierung (Zielwinkel)";
+    public string WheelDragTooltip => En
+        ? "Draggable with the mouse in 'Motor Positioning' mode to steer the physical G29."
+        : "Im Modus 'Motor-Positionierung' per Maus drehbar, um das echte G29 anzufahren.";
+
+    public string ActualAngleLabel => En ? "ACTUAL ANGLE" : "IST-WINKEL";
+    public string DeflectionLabel => En ? "DEFLECTION" : "AUSLENKUNG";
+    public string RawValueLabel => En ? "16-BIT RAW (lX)" : "16-BIT ROHWERT (lX)";
+    public string GentleDampingLabel => En ? "Gentle freewheel damping" : "Sanfte Freilauf-Dämpfung";
+    public string RangeLabel => En ? "Operating range:" : "Arbeitsbereich:";
+    public string TargetAngleTitle => En ? "Target Angle" : "Zielwinkel-Vorgabe";
+    public string ApplyTargetButton => En ? "Move" : "Anfahren";
+    public string CenterPresetButton => En ? "0° Center" : "0° Mitte";
+
+    // Column 2: FFB Lab & Controller
+    public string FfbLabTitle => En ? "Force Feedback Effect Lab" : "Force-Feedback-Effekt-Labor";
+    public string SpringTitle => En ? "Spring Force (Centering Spring)" : "Spring Force (Rückstellfeder)";
+    public string SpringOffsetLabel => En ? "Center" : "Mittelpunkt";
+    public string SpringSaturationLabel => En ? "Saturation" : "Sättigung";
+    public string SpringCoefficientLabel => En ? "Stiffness" : "Federhärte";
+    public string DamperTitle => En ? "Damper Force (Viscosity / Resistance)" : "Damper Force (Zähigkeit / Lenkwiderstand)";
+    public string DamperResistanceLabel => En ? "Resistance" : "Widerstand";
+    public string BumpyTitle => En ? "Bumpy Road (Cobblestone Vibration)" : "Bumpy Road (Kopfsteinpflaster-Rütteln)";
+    public string DirtTitle => En ? "Dirt Road (Gravel Vibration)" : "Dirt Road (Schotter-Vibration)";
+    public string IntensityLabel => En ? "Intensity" : "Intensität";
+    public string CollisionLabel => En ? "Collision" : "Kollision";
+    public string CollisionButton => En ? "Trigger impulse" : "Impuls auslösen";
+
+    public string ControllerSectionTitle => En ? "Position Controller & Force Limit" : "Positionsregler & Kraft-Begrenzung";
+    public string ResetDefaultsButton => En ? "Defaults" : "Standardwerte";
+    public string MaxForceLabel => En ? "Max Motor Force (Limit)" : "Max. Motorkraft (Limit)";
+    public string KpLabel => En ? "Proportional (Kp)" : "Proportional (Kp)";
+    public string KdLabel => En ? "Damping (Kd)" : "Dämpfung (Kd)";
+    public string DeadzoneLabel => En ? "Deadzone" : "Totzone";
+
+    // Column 3: Pedals, LEDs, Shifter, Buttons
+    public string PedalsSectionTitle => En ? "Pedals & Calibration" : "Pedale & Kalibrierung";
+    public string AutoMinMaxLabel => "Auto-Min/Max";
+    public string ResetButton => "Reset";
+    public string GasLabel => En ? "Throttle" : "Gas";
+    public string BrakeLabel => En ? "Brake" : "Bremse";
+    public string ClutchLabel => En ? "Clutch" : "Kupplung";
+    public string PedalCouplingLabel => En ? "Pedal coupling:" : "Pedal-Kopplung:";
+    public string CouplingNone => En ? "None" : "Keine Kopplung";
+    public string CouplingGasToAngle => En ? "Throttle → Target Angle" : "Gas → Zielwinkel";
+    public string CouplingGasToBumpy => En ? "Throttle → Bumpy Vibration" : "Gas → Bumpy-Vibration";
+
+    public string RpmSectionTitle => En ? "RPM Shift LEDs (LogiPlayLeds)" : "RPM-Shift-LEDs (LogiPlayLeds)";
+    public string RpmManual => En ? "Manual" : "Manuell";
+    public string RpmGasCoupled => En ? "Throttle Coupled" : "Gaspedal-Kopplung";
+
+    public string ButtonsSectionTitle => En ? "Buttons, D-Pad & H-Shifter (25 Inputs)" : "Tasten, D-Pad & H-Shifter (25 Tasten)";
+    public string DPadPrefix => "D-Pad (POV):";
+    public string ShifterPrefix => En ? "Shifter Gear:" : "Shifter-Gang:";
+}

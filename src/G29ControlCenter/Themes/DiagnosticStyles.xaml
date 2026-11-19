@@ -1,0 +1,158 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:conv="clr-namespace:G29ControlCenter.Converters">
+
+    <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    <conv:EnumEqualsBoolConverter x:Key="EnumEqualsBoolConverter" />
+    <conv:BadgeSeverityToBackgroundConverter x:Key="BadgeSeverityToBackgroundConverter" />
+    <conv:BadgeSeverityToBorderConverter x:Key="BadgeSeverityToBorderConverter" />
+    <conv:BadgeSeverityToDotConverter x:Key="BadgeSeverityToDotConverter" />
+    <conv:BipolarForceWidthConverter x:Key="BipolarForceWidthConverter" />
+
+    <!-- Standard-Fallback-Brushes (werden beim Start & Theme-Wechsel in App.xaml.cs aktiv aktualisiert) -->
+    <SolidColorBrush x:Key="SurfaceBackgroundBrush" Color="#F3F3F3" />
+    <SolidColorBrush x:Key="SurfaceCardBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="SurfaceSubtleBrush" Color="#EAEAEA" />
+    <SolidColorBrush x:Key="CardBorderBrush" Color="#E0E0E0" />
+    <SolidColorBrush x:Key="PrimaryTextBrush" Color="#1A1A1A" />
+    <SolidColorBrush x:Key="SecondaryTextBrush" Color="#5C5C5C" />
+    <SolidColorBrush x:Key="WheelRimBrush" Color="#262626" />
+    <SolidColorBrush x:Key="WheelSpokeBrush" Color="#484848" />
+    <SolidColorBrush x:Key="WheelTrackBrush" Color="#DCDCDC" />
+    <SolidColorBrush x:Key="LedOffBrush" Color="#D4D4D4" />
+
+    <SolidColorBrush x:Key="BadgeOkBackgroundBrush" Color="#EAF5EC" />
+    <SolidColorBrush x:Key="BadgeOkBorderBrush" Color="#A7D7B2" />
+    <SolidColorBrush x:Key="BadgeOkDotBrush" Color="#107C10" />
+
+    <SolidColorBrush x:Key="BadgeWarnBackgroundBrush" Color="#FFF7E6" />
+    <SolidColorBrush x:Key="BadgeWarnBorderBrush" Color="#E5C07B" />
+    <SolidColorBrush x:Key="BadgeWarnDotBrush" Color="#C87E00" />
+
+    <SolidColorBrush x:Key="BadgeErrorBackgroundBrush" Color="#FDECEA" />
+    <SolidColorBrush x:Key="BadgeErrorBorderBrush" Color="#E5A29B" />
+    <SolidColorBrush x:Key="BadgeErrorDotBrush" Color="#C42B1C" />
+
+    <!-- Gruppenboxen im nüchternen Win11-Diagnose-Design -->
+    <Style x:Key="DiagnosticCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource SurfaceCardBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Padding" Value="12,10" />
+    </Style>
+
+    <Style x:Key="SectionHeaderTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="Segoe UI Variable Text, Segoe UI" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+    </Style>
+
+    <Style x:Key="SubtleLabelTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="Segoe UI Variable Text, Segoe UI" />
+        <Setter Property="FontSize" Value="11.5" />
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+    </Style>
+
+    <Style x:Key="TabularValueTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="Segoe UI Variable Display, Segoe UI" />
+        <Setter Property="Typography.NumeralAlignment" Value="Tabular" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+    </Style>
+
+    <!-- Nüchternes Segmented Control für RadioButtons -->
+    <Style x:Key="SegmentedRadioStyle" TargetType="RadioButton">
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+        <Setter Property="Background" Value="{DynamicResource SurfaceSubtleBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="10,6" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="Typography.NumeralAlignment" Value="Tabular" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border x:Name="RootBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="4"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          RecognizesAccessKey="True" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="RootBorder" Property="Background"
+                                    Value="{DynamicResource {x:Static SystemColors.AccentColorBrushKey}}" />
+                            <Setter TargetName="RootBorder" Property="BorderBrush"
+                                    Value="{DynamicResource {x:Static SystemColors.AccentColorBrushKey}}" />
+                            <Setter Property="Foreground" Value="White" />
+                            <Setter Property="FontWeight" Value="SemiBold" />
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="True" />
+                                <Condition Property="IsChecked" Value="False" />
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="RootBorder" Property="Opacity" Value="0.88" />
+                        </MultiTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="QuickPresetButtonStyle" TargetType="Button">
+        <Setter Property="Padding" Value="6,4" />
+        <Setter Property="MinWidth" Value="44" />
+        <Setter Property="FontSize" Value="11.5" />
+        <Setter Property="Typography.NumeralAlignment" Value="Tabular" />
+    </Style>
+
+    <Style x:Key="EmergencyStopButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="#C42B1C" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="BorderBrush" Value="#9E2115" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="14,7" />
+        <Setter Property="FontSize" Value="12.5" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="4"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="#A82315" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="#8C1D11" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="StatusBadgeBorderStyle" TargetType="Border">
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="9,5" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+</ResourceDictionary>

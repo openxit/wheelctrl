@@ -1,0 +1,22 @@
+<UserControl x:Class="G29ControlCenter.Controls.RpmLedBarControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Height="20">
+    <StackPanel x:Name="LedContainer"
+                Orientation="Horizontal"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+        <!-- 5 Paare von außen nach innen: 2× Grün, 2× Orange, 1× Rot -->
+        <Border x:Name="L1" Width="18" Height="9" CornerRadius="2" Margin="2,0" BorderThickness="1" BorderBrush="{DynamicResource CardBorderBrush}" />
+        <Border x:Name="L2" Width="18" Height="9" CornerRadius="2" Margin="2,0" BorderThickness="1" BorderBrush="{DynamicResource CardBorderBrush}" />
+        <Border x:Name="L3" Width="18" Height="9" CornerRadius="2" Margin="2,0" BorderThickness="1" BorderBrush="{DynamicResource CardBorderBrush}" />
+        <Border x:Name="L4" Width="18" Height="9" CornerRadius="2" Margin="2,0" BorderThickness="1" BorderBrush="{DynamicResource CardBorderBrush}" />
+        <Border x:Name="L5" Width="18" Height="9" CornerRadius="2" Margin="2,0,5,0" BorderThickness="1" BorderBrush="{DynamicResource CardBorderBrush}" />
+
+        <Border x:Name="R5" Width="18" Height="9" CornerRadius="2" Margin="5,0,2,0" BorderThickness="1" BorderBrush="{DynamicResource CardBorderBrush}" />
+        <Border x:Name="R4" Width="18" Height="9" CornerRadius="2" Margin="2,0" BorderThickness="1" BorderBrush="{DynamicResource CardBorderBrush}" />
+        <Border x:Name="R3" Width="18" Height="9" CornerRadius="2" Margin="2,0" BorderThickness="1" BorderBrush="{DynamicResource CardBorderBrush}" />
+        <Border x:Name="R2" Width="18" Height="9" CornerRadius="2" Margin="2,0" BorderThickness="1" BorderBrush="{DynamicResource CardBorderBrush}" />
+        <Border x:Name="R1" Width="18" Height="9" CornerRadius="2" Margin="2,0" BorderThickness="1" BorderBrush="{DynamicResource CardBorderBrush}" />
+    </StackPanel>
+</UserControl>

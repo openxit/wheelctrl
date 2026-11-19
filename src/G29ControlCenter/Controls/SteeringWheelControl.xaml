@@ -1,0 +1,148 @@
+<UserControl x:Class="G29ControlCenter.Controls.SteeringWheelControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Root"
+             Background="Transparent"
+             MouseLeftButtonDown="OnWheelMouseLeftButtonDown"
+             MouseMove="OnWheelMouseMove"
+             MouseLeftButtonUp="OnWheelMouseLeftButtonUp"
+             LostMouseCapture="OnWheelLostMouseCapture">
+    <Viewbox Stretch="Uniform">
+        <Canvas x:Name="DialCanvas" Width="340" Height="340" Background="Transparent">
+            <!-- Äußere Gradskala -->
+            <Canvas x:Name="ScaleTicksLayer" Width="340" Height="340" IsHitTestVisible="False"
+                    Visibility="{Binding ShowDegreeScale, ElementName=Root, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+            <!-- Statischer 12-Uhr-Referenzmarker -->
+            <Polygon Points="170,22 164,12 176,12"
+                     Fill="{DynamicResource SecondaryTextBrush}"
+                     Visibility="{Binding ShowDegreeScale, ElementName=Root, Converter={StaticResource BoolToVisibilityConverter}}"
+                     IsHitTestVisible="False" />
+
+            <!-- Zielwinkel-Indikator -->
+            <Canvas Width="340" Height="340" IsHitTestVisible="False">
+                <Canvas.Visibility>
+                    <Binding ElementName="Root" Path="ShowTargetMarker"
+                             Converter="{StaticResource BoolToVisibilityConverter}" />
+                </Canvas.Visibility>
+                <Canvas.RenderTransform>
+                    <RotateTransform Angle="{Binding TargetAngle, ElementName=Root}" CenterX="170" CenterY="170" />
+                </Canvas.RenderTransform>
+                <Polygon Points="170,35 162,21 178,21"
+                         Fill="{DynamicResource {x:Static SystemColors.AccentColorBrushKey}}" />
+                <Line X1="170" Y1="35" X2="170" Y2="52"
+                      Stroke="{DynamicResource {x:Static SystemColors.AccentColorBrushKey}}"
+                      StrokeThickness="2.5"
+                      StrokeStartLineCap="Round"
+                      StrokeEndLineCap="Round" />
+            </Canvas>
+
+            <!-- Drehendes Lenkrad (Vektorgrafik) -->
+            <Canvas x:Name="RotatingWheelGroup" Width="340" Height="340" IsHitTestVisible="False">
+                <Canvas.RenderTransform>
+                    <RotateTransform Angle="{Binding CurrentAngle, ElementName=Root}" CenterX="170" CenterY="170" />
+                </Canvas.RenderTransform>
+
+                <!-- Linke Schaltwippe -->
+                <Path x:Name="LeftPaddlePath"
+                      Data="M 110,126 L 78,118 C 72,117 68,121 68,127 L 68,167 C 68,173 72,177 78,176 L 110,168 Z"
+                      Fill="{DynamicResource SurfaceSubtleBrush}"
+                      Stroke="{DynamicResource CardBorderBrush}"
+                      StrokeThickness="1.5" />
+                <TextBlock Text="−"
+                           Canvas.Left="76" Canvas.Top="138"
+                           FontSize="13" FontWeight="Bold"
+                           Foreground="{DynamicResource SecondaryTextBrush}" />
+
+                <!-- Rechte Schaltwippe -->
+                <Path x:Name="RightPaddlePath"
+                      Data="M 230,126 L 262,118 C 268,117 272,121 272,127 L 272,167 C 272,173 268,177 262,176 L 230,168 Z"
+                      Fill="{DynamicResource SurfaceSubtleBrush}"
+                      Stroke="{DynamicResource CardBorderBrush}"
+                      StrokeThickness="1.5" />
+                <TextBlock Text="+"
+                           Canvas.Left="253" Canvas.Top="138"
+                           FontSize="13" FontWeight="Bold"
+                           Foreground="{DynamicResource SecondaryTextBrush}" />
+
+                <!-- 3 profilierte Metall-Speichen -->
+                <Path Data="M 55,155 L 146,158 L 146,184 L 55,181 Z"
+                      Fill="{DynamicResource WheelSpokeBrush}" />
+                <Path Data="M 74,164 L 128,166 L 128,174 L 74,172 Z"
+                      Fill="{DynamicResource SurfaceSubtleBrush}" Opacity="0.35" />
+
+                <Path Data="M 194,158 L 285,155 L 285,181 L 194,184 Z"
+                      Fill="{DynamicResource WheelSpokeBrush}" />
+                <Path Data="M 212,166 L 266,164 L 266,172 L 212,174 Z"
+                      Fill="{DynamicResource SurfaceSubtleBrush}" Opacity="0.35" />
+
+                <Path Data="M 154,186 L 186,186 L 181,284 L 159,284 Z"
+                      Fill="{DynamicResource WheelSpokeBrush}" />
+                <Path Data="M 165,204 L 175,204 L 173,268 L 167,268 Z"
+                      Fill="{DynamicResource SurfaceSubtleBrush}" Opacity="0.35" />
+
+                <!-- Äußerer Kranz -->
+                <Ellipse Canvas.Left="48" Canvas.Top="48" Width="244" Height="244"
+                         Stroke="{DynamicResource WheelRimBrush}"
+                         StrokeThickness="20" />
+                <Ellipse Canvas.Left="58" Canvas.Top="58" Width="224" Height="224"
+                         Stroke="{DynamicResource CardBorderBrush}"
+                         StrokeThickness="1" />
+                <Ellipse Canvas.Left="38" Canvas.Top="38" Width="264" Height="264"
+                         Stroke="{DynamicResource CardBorderBrush}"
+                         StrokeThickness="1" />
+
+                <!-- 12-Uhr-Oberkanten-Markierungsring -->
+                <Rectangle Canvas.Left="163" Canvas.Top="37" Width="14" Height="22"
+                           RadiusX="2" RadiusY="2"
+                           Fill="{DynamicResource {x:Static SystemColors.AccentColorBrushKey}}" />
+                <Line X1="170" Y1="37" X2="170" Y2="59"
+                      Stroke="White" StrokeThickness="1.5" />
+
+                <!-- Hochwertige zentrale G29-Nabenplatte -->
+                <Ellipse Canvas.Left="124" Canvas.Top="124" Width="92" Height="92"
+                         Fill="#1F2227"
+                         Stroke="{DynamicResource WheelSpokeBrush}"
+                         StrokeThickness="3" />
+                <Ellipse Canvas.Left="130" Canvas.Top="130" Width="80" Height="80"
+                         Stroke="#3D434D"
+                         StrokeThickness="1" />
+
+                <!-- 6 symmetrische Inbusschrauben im Lochkreis (r = 35px) -->
+                <Ellipse Canvas.Left="167.5" Canvas.Top="132.5" Width="5" Height="5" Fill="#6D7480" Stroke="#111317" StrokeThickness="0.8" />
+                <Ellipse Canvas.Left="197.8" Canvas.Top="150.0" Width="5" Height="5" Fill="#6D7480" Stroke="#111317" StrokeThickness="0.8" />
+                <Ellipse Canvas.Left="197.8" Canvas.Top="185.0" Width="5" Height="5" Fill="#6D7480" Stroke="#111317" StrokeThickness="0.8" />
+                <Ellipse Canvas.Left="167.5" Canvas.Top="202.5" Width="5" Height="5" Fill="#6D7480" Stroke="#111317" StrokeThickness="0.8" />
+                <Ellipse Canvas.Left="137.2" Canvas.Top="185.0" Width="5" Height="5" Fill="#6D7480" Stroke="#111317" StrokeThickness="0.8" />
+                <Ellipse Canvas.Left="137.2" Canvas.Top="150.0" Width="5" Height="5" Fill="#6D7480" Stroke="#111317" StrokeThickness="0.8" />
+
+                <!-- Innerer Metall-/Akzent-Emblemring -->
+                <Ellipse Canvas.Left="140" Canvas.Top="140" Width="60" Height="60"
+                         Fill="#292D34"
+                         Stroke="{DynamicResource {x:Static SystemColors.AccentColorBrushKey}}"
+                         StrokeThickness="2" />
+
+                <!-- Neutrales WheelCtrl-Emblem (markenfrei) -->
+                <TextBlock Text="WC"
+                           Canvas.Left="140" Canvas.Top="152"
+                           Width="60"
+                           TextAlignment="Center"
+                           FontFamily="Segoe UI Variable Display, Segoe UI"
+                           FontSize="17"
+                           FontWeight="Bold"
+                           Typography.NumeralAlignment="Tabular"
+                           Foreground="#F5F7FA" />
+                <Rectangle Canvas.Left="153" Canvas.Top="174" Width="34" Height="1.5"
+                           Fill="{DynamicResource {x:Static SystemColors.AccentColorBrushKey}}" />
+                <TextBlock Text="WHEELCTRL"
+                           Canvas.Left="140" Canvas.Top="178"
+                           Width="60"
+                           TextAlignment="Center"
+                           FontFamily="Segoe UI Variable Text, Segoe UI"
+                           FontSize="5.8"
+                           FontWeight="SemiBold"
+                           Foreground="#9BA3B0" />
+            </Canvas>
+        </Canvas>
+    </Viewbox>
+</UserControl>

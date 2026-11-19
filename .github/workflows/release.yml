@@ -1,0 +1,36 @@
+name: Release Single-File Executable
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore & Test
+        run: |
+          dotnet restore G29ControlCenter.sln -p:Platform=x64
+          dotnet test tests/G29ControlCenter.Tests/G29ControlCenter.Tests.csproj -c Release -p:Platform=x64 --verbosity normal
+
+      - name: Publish single-file WheelCtrl.exe
+        run: |
+          dotnet publish src/G29ControlCenter/G29ControlCenter.csproj -c Release -r win-x64 --self-contained true -p:Platform=x64 -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -p:DebugType=None -p:DebugSymbols=false -o release_dist
+
+      - name: Upload GitHub Release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release_dist/WheelCtrl.exe

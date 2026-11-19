@@ -1,0 +1,60 @@
+<UserControl x:Class="G29ControlCenter.Controls.PedalBarControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Root">
+    <Grid MinWidth="68">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0"
+                   Text="{Binding Label, ElementName=Root}"
+                   HorizontalAlignment="Center"
+                   FontSize="11.5"
+                   FontWeight="SemiBold"
+                   Foreground="{DynamicResource PrimaryTextBrush}" />
+
+        <TextBlock Grid.Row="1"
+                   Text="{Binding Percentage, ElementName=Root, StringFormat={}{0:0.0} %}"
+                   HorizontalAlignment="Center"
+                   Margin="0,2,0,4"
+                   FontSize="12"
+                   Style="{StaticResource TabularValueTextStyle}" />
+
+        <Border Grid.Row="2"
+                Width="30"
+                MinHeight="125"
+                HorizontalAlignment="Center"
+                Background="{DynamicResource SurfaceSubtleBrush}"
+                BorderBrush="{DynamicResource CardBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="4"
+                ClipToBounds="True">
+            <Grid x:Name="BarTrackGrid" SizeChanged="OnBarTrackSizeChanged">
+                <!-- Skalenlinien 25 %, 50 %, 75 % -->
+                <Canvas IsHitTestVisible="False">
+                    <Line X1="0" X2="30" Y1="31" Y2="31" Stroke="{DynamicResource CardBorderBrush}" StrokeThickness="1" />
+                    <Line X1="0" X2="30" Y1="62" Y2="62" Stroke="{DynamicResource CardBorderBrush}" StrokeThickness="1" />
+                    <Line X1="0" X2="30" Y1="94" Y2="94" Stroke="{DynamicResource CardBorderBrush}" StrokeThickness="1" />
+                </Canvas>
+
+                <Rectangle x:Name="FillRect"
+                           VerticalAlignment="Bottom"
+                           HorizontalAlignment="Stretch"
+                           Height="0"
+                           Fill="{Binding BarBrush, ElementName=Root}" />
+            </Grid>
+        </Border>
+
+        <TextBlock Grid.Row="3"
+                   Text="{Binding RawValue, ElementName=Root, StringFormat=Roh: {0}}"
+                   HorizontalAlignment="Center"
+                   Margin="0,4,0,0"
+                   FontSize="10.5"
+                   Typography.NumeralAlignment="Tabular"
+                   Foreground="{DynamicResource SecondaryTextBrush}" />
+    </Grid>
+</UserControl>
