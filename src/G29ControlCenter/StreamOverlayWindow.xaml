@@ -11,7 +11,11 @@
         Background="{Binding Overlay.WindowBackgroundBrush}"
         Topmost="{Binding Overlay.AlwaysOnTop}"
         Opacity="{Binding Overlay.WindowOpacity}"
-        MouseLeftButtonDown="OnOverlayMouseLeftButtonDown">
+        MouseLeftButtonDown="OnOverlayMouseLeftButtonDown"
+        MouseMove="OnOverlayMouseMove"
+        MouseLeftButtonUp="OnOverlayMouseLeftButtonUp"
+        LostMouseCapture="OnOverlayLostMouseCapture"
+        MouseWheel="OnOverlayMouseWheel">
 
     <Grid Margin="14">
         <Grid.LayoutTransform>

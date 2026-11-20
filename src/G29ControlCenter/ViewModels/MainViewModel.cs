@@ -14,7 +14,8 @@ public enum HubSection
 {
     Devices = 0,
     Controls = 1,
-    Overlay = 2
+    Overlay = 2,
+    Gamepad = 3
 }
 
 public sealed class DeviceProfileOption : ObservableObject
@@ -65,9 +66,19 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private readonly IWheelHardwareService _hardwareService;
     private readonly DispatcherTimer _uiTimer;
     private readonly OverlayHttpServer _overlayHttpServer;
+    private readonly VirtualGamepadService _virtualGamepadService;
     private StreamOverlayWindow? _overlayWindow;
     private bool _disposed;
     private bool _isTargetInputFocused;
+    private bool _isInstallingGamepadDriver;
+    private string _gamepadDriverInstallStatus = string.Empty;
+    private double _virtualLeftStickXNorm;
+    private double _virtualLeftTriggerPercent;
+    private double _virtualRightTriggerPercent;
+    private string _virtualPressedButtonsSummary = "None";
+    private string _gamepadLatencyText = "0.00 ms";
+    private double _gamepadProcessingMs;
+    private double _gamepadLoopHz = 100.0;
 
     // Hub-Navigation & Overlay-Status
     private HubSection _activeSection = HubSection.Devices;
@@ -149,6 +160,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     {
         _hardwareService = hardwareService ?? throw new ArgumentNullException(nameof(hardwareService));
         _overlayHttpServer = new OverlayHttpServer(_hardwareService, Overlay);
+        _virtualGamepadService = new VirtualGamepadService(GamepadConfig);
+        _hardwareService.TelemetryUpdated += OnHardwareTelemetryUpdated;
+        _virtualGamepadService.CheckDriverStatus();
 
         Buttons = new ObservableCollection<ButtonItemModel>(ButtonItemModel.CreateG29DefaultMap());
         PedalCouplingOptions =
@@ -216,6 +230,11 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         OpenDevicesTabCommand = new RelayCommand(() => ActiveSection = HubSection.Devices);
         OpenControlsTabCommand = new RelayCommand(() => ActiveSection = HubSection.Controls);
         OpenOverlayTabCommand = new RelayCommand(() => ActiveSection = HubSection.Overlay);
+        OpenGamepadTabCommand = new RelayCommand(() => ActiveSection = HubSection.Gamepad);
+        InstallGamepadDriverCommand = new RelayCommand(() => _ = InstallGamepadDriverAsync());
+        RecheckGamepadDriverCommand = new RelayCommand(RecheckGamepadDriver);
+        ApplyGamepadDefaultPresetCommand = new RelayCommand(() => GamepadConfig.ApplyDefaultPreset());
+        ClearGamepadMappingsCommand = new RelayCommand(() => GamepadConfig.ClearAllButtonMappings());
 
         _uiTimer = new DispatcherTimer(DispatcherPriority.Render)
         {
@@ -226,6 +245,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
     public LocalizationStrings Loc { get; } = new();
     public OverlaySettings Overlay { get; } = new();
+    public VirtualGamepadMappingConfig GamepadConfig { get; } = new();
+    public IReadOnlyList<VirtualAxisTarget> AxisTargetOptions { get; } = Enum.GetValues<VirtualAxisTarget>();
+    public IReadOnlyList<VirtualButtonTarget> ButtonTargetOptions { get; } = Enum.GetValues<VirtualButtonTarget>();
     public ObservableCollection<ButtonItemModel> Buttons { get; }
     public IReadOnlyList<PedalCouplingOption> PedalCouplingOptions { get; }
     public IReadOnlyList<OverlayBackgroundOption> OverlayBackgroundOptions { get; }
@@ -244,6 +266,11 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public RelayCommand OpenDevicesTabCommand { get; }
     public RelayCommand OpenControlsTabCommand { get; }
     public RelayCommand OpenOverlayTabCommand { get; }
+    public RelayCommand OpenGamepadTabCommand { get; }
+    public RelayCommand InstallGamepadDriverCommand { get; }
+    public RelayCommand RecheckGamepadDriverCommand { get; }
+    public RelayCommand ApplyGamepadDefaultPresetCommand { get; }
+    public RelayCommand ClearGamepadMappingsCommand { get; }
 
     public HubSection ActiveSection
     {
@@ -253,11 +280,15 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             if (SetProperty(ref _activeSection, value))
             {
                 OnPropertyChanged(nameof(IsDevicesTabSelected));
+                OnPropertyChanged(nameof(IsInsideDevice));
                 OnPropertyChanged(nameof(IsControlsTabSelected));
                 OnPropertyChanged(nameof(IsOverlayTabSelected));
+                OnPropertyChanged(nameof(IsGamepadTabSelected));
             }
         }
     }
+
+    public bool IsInsideDevice => _activeSection != HubSection.Devices;
 
     public bool IsDevicesTabSelected
     {
@@ -291,6 +322,18 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             if (value)
             {
                 ActiveSection = HubSection.Overlay;
+            }
+        }
+    }
+
+    public bool IsGamepadTabSelected
+    {
+        get => _activeSection == HubSection.Gamepad;
+        set
+        {
+            if (value)
+            {
+                ActiveSection = HubSection.Gamepad;
             }
         }
     }
@@ -428,7 +471,103 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public bool IsDeviceConnected
     {
         get => _isDeviceConnected;
-        private set => SetProperty(ref _isDeviceConnected, value);
+        private set
+        {
+            if (SetProperty(ref _isDeviceConnected, value))
+            {
+                OnPropertyChanged(nameof(IsDeviceDisconnected));
+            }
+        }
+    }
+
+    public bool IsDeviceDisconnected => !_isDeviceConnected;
+
+    public bool IsVirtualGamepadEnabled
+    {
+        get => _virtualGamepadService.IsEnabled;
+        set
+        {
+            _virtualGamepadService.SetEnabled(value);
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(IsGamepadDriverReady));
+            OnPropertyChanged(nameof(IsGamepadDriverMissing));
+            OnPropertyChanged(nameof(GamepadDriverStatusText));
+        }
+    }
+
+    public bool IsGamepadDriverReady => _virtualGamepadService.DriverState == VirtualGamepadDriverState.Ready;
+    public bool IsGamepadDriverMissing => _virtualGamepadService.DriverState == VirtualGamepadDriverState.DriverMissing;
+
+    public bool IsInstallingGamepadDriver
+    {
+        get => _isInstallingGamepadDriver;
+        private set
+        {
+            if (SetProperty(ref _isInstallingGamepadDriver, value))
+            {
+                OnPropertyChanged(nameof(GamepadDriverStatusText));
+            }
+        }
+    }
+
+    public string GamepadDriverStatusText
+    {
+        get
+        {
+            if (_isInstallingGamepadDriver)
+            {
+                return Loc.GamepadInstallingDriver;
+            }
+            if (!string.IsNullOrEmpty(_gamepadDriverInstallStatus))
+            {
+                return _gamepadDriverInstallStatus;
+            }
+            return _virtualGamepadService.DriverState == VirtualGamepadDriverState.Ready
+                ? Loc.GamepadDriverReady
+                : Loc.GamepadDriverMissing;
+        }
+    }
+
+    public double VirtualLeftStickXNorm
+    {
+        get => _virtualLeftStickXNorm;
+        private set => SetProperty(ref _virtualLeftStickXNorm, value);
+    }
+
+    public double VirtualLeftTriggerPercent
+    {
+        get => _virtualLeftTriggerPercent;
+        private set => SetProperty(ref _virtualLeftTriggerPercent, value);
+    }
+
+    public double VirtualRightTriggerPercent
+    {
+        get => _virtualRightTriggerPercent;
+        private set => SetProperty(ref _virtualRightTriggerPercent, value);
+    }
+
+    public string VirtualPressedButtonsSummary
+    {
+        get => _virtualPressedButtonsSummary;
+        private set => SetProperty(ref _virtualPressedButtonsSummary, value);
+    }
+
+    public string GamepadLatencyText
+    {
+        get => _gamepadLatencyText;
+        private set => SetProperty(ref _gamepadLatencyText, value);
+    }
+
+    public double GamepadProcessingMs
+    {
+        get => _gamepadProcessingMs;
+        private set => SetProperty(ref _gamepadProcessingMs, value);
+    }
+
+    public double GamepadLoopHz
+    {
+        get => _gamepadLoopHz;
+        private set => SetProperty(ref _gamepadLoopHz, value);
     }
 
     public bool CombinedPedalsWarning
@@ -964,15 +1103,50 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
 
         _uiTimer.Stop();
+        _hardwareService.TelemetryUpdated -= OnHardwareTelemetryUpdated;
         if (_overlayWindow is not null)
         {
             _overlayWindow.Close();
             _overlayWindow = null;
         }
         _overlayHttpServer.Dispose();
+        _virtualGamepadService.Dispose();
         _hardwareService.EmergencyStop();
         _hardwareService.Dispose();
         _disposed = true;
+    }
+
+    private void OnHardwareTelemetryUpdated(WheelTelemetrySnapshot snapshot)
+    {
+        _virtualGamepadService.ProcessSnapshot(snapshot);
+    }
+
+    private void RecheckGamepadDriver()
+    {
+        _gamepadDriverInstallStatus = string.Empty;
+        _virtualGamepadService.CheckDriverStatus();
+        OnPropertyChanged(nameof(IsGamepadDriverReady));
+        OnPropertyChanged(nameof(IsGamepadDriverMissing));
+        OnPropertyChanged(nameof(GamepadDriverStatusText));
+    }
+
+    private async Task InstallGamepadDriverAsync()
+    {
+        if (IsInstallingGamepadDriver)
+        {
+            return;
+        }
+
+        IsInstallingGamepadDriver = true;
+        _gamepadDriverInstallStatus = string.Empty;
+
+        (bool success, string message) = await _virtualGamepadService.InstallViGEmBusDriverAsync();
+        _gamepadDriverInstallStatus = success ? string.Empty : message;
+        IsInstallingGamepadDriver = false;
+
+        OnPropertyChanged(nameof(IsGamepadDriverReady));
+        OnPropertyChanged(nameof(IsGamepadDriverMissing));
+        OnPropertyChanged(nameof(GamepadDriverStatusText));
     }
 
     private void ToggleDesktopOverlay()
@@ -1134,6 +1308,54 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
         RightPaddlePressed = s.Buttons.Length > 4 && s.Buttons[4];
         LeftPaddlePressed = s.Buttons.Length > 5 && s.Buttons[5];
+
+        // Live Virtual Gamepad Preview & Latency
+        VirtualXbox360Report gpReport = VirtualGamepadReportMapper.Map(s, GamepadConfig);
+        VirtualLeftStickXNorm = Math.Round((gpReport.LeftStickX / 32767.0) * 100.0, 1);
+        VirtualLeftTriggerPercent = Math.Round((gpReport.LeftTrigger / 255.0) * 100.0, 1);
+        VirtualRightTriggerPercent = Math.Round((gpReport.RightTrigger / 255.0) * 100.0, 1);
+        VirtualPressedButtonsSummary = FormatPressedXboxButtons(gpReport.Buttons);
+
+        for (int i = 0; i < GamepadConfig.ButtonMappings.Count && i < s.Buttons.Length; i++)
+        {
+            GamepadConfig.ButtonMappings[i].IsPressed = s.Buttons[i];
+        }
+
+        double hz = s.ActualControlLoopHz > 1.0 ? s.ActualControlLoopHz : 100.0;
+        double procMs = _virtualGamepadService.IsEnabled
+            ? _virtualGamepadService.AverageTranslateLatencyMs
+            : 0.05;
+        double avgPollMs = (1000.0 / hz) * 0.5;
+        GamepadProcessingMs = procMs;
+        GamepadLoopHz = hz;
+        GamepadLatencyText = _virtualGamepadService.IsEnabled
+            ? $"{procMs:0.00} ms translate • ~{avgPollMs + procMs:0.1} ms avg @ {hz:0} Hz"
+            : $"~{avgPollMs:0.1} ms avg @ {hz:0} Hz (standby)";
+    }
+
+    private static string FormatPressedXboxButtons(VirtualXboxButtonMask mask)
+    {
+        if (mask == VirtualXboxButtonMask.None)
+        {
+            return "—";
+        }
+
+        var parts = new List<string>(8);
+        if ((mask & VirtualXboxButtonMask.A) != 0) parts.Add("A");
+        if ((mask & VirtualXboxButtonMask.B) != 0) parts.Add("B");
+        if ((mask & VirtualXboxButtonMask.X) != 0) parts.Add("X");
+        if ((mask & VirtualXboxButtonMask.Y) != 0) parts.Add("Y");
+        if ((mask & VirtualXboxButtonMask.LeftShoulder) != 0) parts.Add("LB");
+        if ((mask & VirtualXboxButtonMask.RightShoulder) != 0) parts.Add("RB");
+        if ((mask & VirtualXboxButtonMask.Back) != 0) parts.Add("Back");
+        if ((mask & VirtualXboxButtonMask.Start) != 0) parts.Add("Start");
+        if ((mask & VirtualXboxButtonMask.LeftThumb) != 0) parts.Add("LS");
+        if ((mask & VirtualXboxButtonMask.RightThumb) != 0) parts.Add("RS");
+        if ((mask & VirtualXboxButtonMask.Up) != 0) parts.Add("D↑");
+        if ((mask & VirtualXboxButtonMask.Down) != 0) parts.Add("D↓");
+        if ((mask & VirtualXboxButtonMask.Left) != 0) parts.Add("D←");
+        if ((mask & VirtualXboxButtonMask.Right) != 0) parts.Add("D→");
+        return string.Join(" • ", parts);
     }
 
     private void ExecuteEmergencyStop()

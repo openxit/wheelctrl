@@ -40,14 +40,14 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <!-- Links: Neutrales WheelCtrl-Logo + echte Tabs -->
+                <!-- Links: Neutrales WheelCtrl-Logo + Home + (nur im Gerät) Geräte-Untertabs -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                     <Border Width="30" Height="30"
                             CornerRadius="6"
                             Background="{DynamicResource SurfaceSubtleBrush}"
                             BorderBrush="{DynamicResource CardBorderBrush}"
                             BorderThickness="1"
-                            Margin="0,0,22,0"
+                            Margin="0,0,16,0"
                             VerticalAlignment="Center">
                         <TextBlock Text="WC"
                                    FontSize="12"
@@ -58,17 +58,35 @@
                     </Border>
 
                     <RadioButton GroupName="TopNavGroup"
-                                 Content="{Binding Loc.NavDevicesTitle}"
+                                 Content="{Binding Loc.NavHomeTitle}"
                                  IsChecked="{Binding IsDevicesTabSelected}"
                                  Style="{StaticResource HubTopNavRadioStyle}" />
-                    <RadioButton GroupName="TopNavGroup"
-                                 Content="{Binding Loc.NavControlsTitle}"
-                                 IsChecked="{Binding IsControlsTabSelected}"
-                                 Style="{StaticResource HubTopNavRadioStyle}" />
-                    <RadioButton GroupName="TopNavGroup"
-                                 Content="{Binding Loc.NavOverlayTitle}"
-                                 IsChecked="{Binding IsOverlayTabSelected}"
-                                 Style="{StaticResource HubTopNavRadioStyle}" />
+
+                    <StackPanel Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                Visibility="{Binding IsInsideDevice, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TextBlock Text="›"
+                                   FontSize="16"
+                                   Margin="6,0,10,2"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource SubtleTextBrush}" />
+                        <TextBlock Text="{Binding Loc.HubPrimaryDeviceName}"
+                                   FontWeight="SemiBold"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,14,0" />
+                        <RadioButton GroupName="DeviceSubNavGroup"
+                                     Content="{Binding Loc.NavControlsTitle}"
+                                     IsChecked="{Binding IsControlsTabSelected}"
+                                     Style="{StaticResource HubTopNavRadioStyle}" />
+                        <RadioButton GroupName="DeviceSubNavGroup"
+                                     Content="{Binding Loc.NavGamepadTitle}"
+                                     IsChecked="{Binding IsGamepadTabSelected}"
+                                     Style="{StaticResource HubTopNavRadioStyle}" />
+                        <RadioButton GroupName="DeviceSubNavGroup"
+                                     Content="{Binding Loc.NavOverlayTitle}"
+                                     IsChecked="{Binding IsOverlayTabSelected}"
+                                     Style="{StaticResource HubTopNavRadioStyle}" />
+                    </StackPanel>
                 </StackPanel>
 
                 <!-- Rechts: Echtes Profil-Dropdown + DE/EN + Neu verbinden + Alle Motoren stoppen (kein Login!) -->
@@ -163,7 +181,7 @@
             <TextBlock Text="{Binding Loc.CombinedPedalsBanner}" FontSize="12" />
         </Border>
 
-        <!-- ANSICHT 1: HOME / DEVICES (Exakt wie im Screenshot: zentrierte Geräte-Karte + Grid/List Toggle) -->
+        <!-- ANSICHT 1: HOME (Nur verbundene Logitech-Geräte anzeigen) -->
         <Grid Grid.Row="3"
               Margin="20,10,20,20"
               Visibility="{Binding IsDevicesTabSelected, Converter={StaticResource BoolToVisibilityConverter}}">
@@ -172,14 +190,15 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <!-- Oben rechts: Grid | List Toggle -->
+            <!-- Oben rechts: Grid | List Toggle (nur sichtbar wenn mindestens 1 Gerät verbunden ist) -->
             <Border Grid.Row="0"
                     HorizontalAlignment="Right"
                     Background="{DynamicResource SurfaceCardBrush}"
                     BorderBrush="{DynamicResource CardBorderBrush}"
                     BorderThickness="1"
                     CornerRadius="6"
-                    Padding="3">
+                    Padding="3"
+                    Visibility="{Binding IsDeviceConnected, Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel Orientation="Horizontal">
                     <RadioButton GroupName="HomeLayoutGroup"
                                  Content="⊞"
@@ -197,9 +216,41 @@
                 </StackPanel>
             </Border>
 
-            <!-- Grid-Modus: Zentrierte Geräte-Karte wie auf dem Screenshot -->
+            <!-- Leer-Zustand: Wenn kein Gerät angeschlossen ist, wird keine Geräte-Karte angezeigt -->
+            <Border Grid.Row="1"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Width="460"
+                    Style="{StaticResource DiagnosticCardStyle}"
+                    Padding="28,26"
+                    Visibility="{Binding IsDeviceDisconnected, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="🎡"
+                               FontSize="36"
+                               HorizontalAlignment="Center"
+                               Opacity="0.45"
+                               Margin="0,0,0,10" />
+                    <TextBlock Text="{Binding Loc.HomeEmptyTitle}"
+                               FontSize="17"
+                               FontWeight="SemiBold"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center" />
+                    <TextBlock Text="{Binding Loc.HomeEmptyDesc}"
+                               TextWrapping="Wrap"
+                               TextAlignment="Center"
+                               Margin="0,8,0,16"
+                               Style="{StaticResource SubtleLabelTextStyle}" />
+                    <Button Content="{Binding Loc.ReconnectButton}"
+                            Command="{Binding ReconnectHardwareCommand}"
+                            HorizontalAlignment="Center"
+                            Padding="18,7" />
+                </StackPanel>
+            </Border>
+
+            <!-- Verbundene Geräte: Grid-Modus -->
             <Grid Grid.Row="1"
-                  Visibility="{Binding IsHomeGridView, Converter={StaticResource BoolToVisibilityConverter}}">
+                  Visibility="{Binding IsDeviceConnected, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid Visibility="{Binding IsHomeGridView, Converter={StaticResource BoolToVisibilityConverter}}">
                 <Button Command="{Binding OpenControlsTabCommand}"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
@@ -333,6 +384,10 @@
                         </StackPanel>
 
                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Content="{Binding Loc.NavGamepadTitle}"
+                                    Command="{Binding OpenGamepadTabCommand}"
+                                    Padding="12,7"
+                                    Margin="0,0,8,0" />
                             <Button Content="{Binding Loc.TabOverlayTitle}"
                                     Command="{Binding OpenOverlayTabCommand}"
                                     Padding="12,7"
@@ -344,6 +399,7 @@
                     </Grid>
                 </Border>
             </StackPanel>
+            </Grid>
         </Grid>
 
         <!-- ANSICHT 2: CONTROLS & TELEMETRY (3 Spalten) -->
@@ -976,7 +1032,7 @@
                                       Margin="0,0,0,6" />
 
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding Loc.OverlayScaleLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" />
-                            <Slider Grid.Row="1" Grid.Column="1" Minimum="50" Maximum="200" Value="{Binding Overlay.ScalePercent}" VerticalAlignment="Center" />
+                            <Slider Grid.Row="1" Grid.Column="1" Minimum="40" Maximum="250" Value="{Binding Overlay.ScalePercent}" VerticalAlignment="Center" />
                             <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Overlay.ScalePercent, StringFormat={}{0} %}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" />
 
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding Loc.OverlayOpacityLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" />
@@ -1064,6 +1120,245 @@
                     </Border>
                 </Grid>
             </Border>
+        </Grid>
+
+        <!-- ANSICHT 4: VIRTUAL GAMEPAD (XBOX 360 LIVE TRANSLATOR) -->
+        <Grid Grid.Row="3"
+              Margin="20,10,20,14"
+              Visibility="{Binding IsGamepadTabSelected, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.05*" />
+                <ColumnDefinition Width="1.15*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Linke Spalte: Treiber, Aktivierung, Latenz & Achsen-Übersetzung -->
+            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                <Border Style="{StaticResource DiagnosticCardStyle}" Margin="0,0,0,10">
+                    <StackPanel>
+                        <TextBlock Text="{Binding Loc.GamepadHeaderTitle}" Style="{StaticResource SectionHeaderTextStyle}" />
+                        <TextBlock Text="{Binding Loc.GamepadHeaderDesc}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,4,0,0"
+                                   Style="{StaticResource SubtleLabelTextStyle}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource DiagnosticCardStyle}" Margin="0,0,0,10">
+                    <StackPanel>
+                        <DockPanel Margin="0,0,0,8">
+                            <CheckBox Content="{Binding Loc.GamepadEnableToggle}"
+                                      IsChecked="{Binding IsVirtualGamepadEnabled}"
+                                      FontWeight="SemiBold"
+                                      VerticalAlignment="Center" />
+                            <Border DockPanel.Dock="Right"
+                                    HorizontalAlignment="Right"
+                                    Background="{DynamicResource SurfaceSubtleBrush}"
+                                    BorderBrush="{DynamicResource CardBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="4"
+                                    Padding="8,3">
+                                <TextBlock Text="{Binding GamepadLatencyText}"
+                                           FontSize="11.5"
+                                           Typography.NumeralAlignment="Tabular"
+                                           Style="{StaticResource SubtleLabelTextStyle}" />
+                            </Border>
+                        </DockPanel>
+
+                        <TextBlock Text="{Binding GamepadDriverStatusText}"
+                                   FontSize="11.5"
+                                   Style="{StaticResource SubtleLabelTextStyle}"
+                                   Margin="0,0,0,6" />
+
+                        <StackPanel Orientation="Horizontal"
+                                    Visibility="{Binding IsGamepadDriverMissing, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Button Content="{Binding Loc.GamepadInstallDriverButton}"
+                                    Command="{Binding InstallGamepadDriverCommand}"
+                                    Padding="12,6"
+                                    Margin="0,0,8,0" />
+                            <Button Content="{Binding Loc.GamepadRecheckDriverButton}"
+                                    Command="{Binding RecheckGamepadDriverCommand}"
+                                    Padding="10,6" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource DiagnosticCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding Loc.GamepadAxisMappingTitle}" Style="{StaticResource SectionHeaderTextStyle}" Margin="0,0,0,10" />
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="185" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="62" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Loc.GamepadSteeringLockLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" Margin="0,0,0,8" />
+                            <Slider Grid.Row="0" Grid.Column="1" Minimum="90" Maximum="900" TickFrequency="45" IsSnapToTickEnabled="False" Value="{Binding GamepadConfig.SteeringLockDegrees}" VerticalAlignment="Center" Margin="0,0,0,8" />
+                            <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding GamepadConfig.SteeringLockDegrees, StringFormat={}{0}°}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" Margin="0,0,0,8" />
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding Loc.GamepadSteeringDeadzoneLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" Margin="0,0,0,8" />
+                            <Slider Grid.Row="1" Grid.Column="1" Minimum="0" Maximum="20" SmallChange="0.5" Value="{Binding GamepadConfig.SteeringDeadzonePercent}" VerticalAlignment="Center" Margin="0,0,0,8" />
+                            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding GamepadConfig.SteeringDeadzonePercent, StringFormat={}{0:0.0}%}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" Margin="0,0,0,8" />
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding Loc.GamepadSteeringLinearityLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" Margin="0,0,0,8" />
+                            <Slider Grid.Row="2" Grid.Column="1" Minimum="0.5" Maximum="2.5" SmallChange="0.05" Value="{Binding GamepadConfig.SteeringLinearity}" VerticalAlignment="Center" Margin="0,0,0,8" />
+                            <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding GamepadConfig.SteeringLinearity, StringFormat={}{0:0.00}}" TextAlignment="Right" VerticalAlignment="Center" Style="{StaticResource TabularValueTextStyle}" Margin="0,0,0,8" />
+
+                            <CheckBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3"
+                                      Content="{Binding Loc.GamepadInvertSteeringLabel}"
+                                      IsChecked="{Binding GamepadConfig.InvertSteering}"
+                                      Margin="0,2,0,10" />
+
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="{Binding Loc.GamepadGasTargetLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" Margin="0,0,0,6" />
+                            <ComboBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"
+                                      ItemsSource="{Binding AxisTargetOptions}"
+                                      SelectedItem="{Binding GamepadConfig.GasAxisTarget}"
+                                      Margin="0,0,0,6" />
+
+                            <TextBlock Grid.Row="5" Grid.Column="0" Text="{Binding Loc.GamepadBrakeTargetLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" Margin="0,0,0,6" />
+                            <ComboBox Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2"
+                                      ItemsSource="{Binding AxisTargetOptions}"
+                                      SelectedItem="{Binding GamepadConfig.BrakeAxisTarget}"
+                                      Margin="0,0,0,6" />
+
+                            <TextBlock Grid.Row="6" Grid.Column="0" Text="{Binding Loc.GamepadClutchTargetLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" Margin="0,0,0,8" />
+                            <ComboBox Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2"
+                                      ItemsSource="{Binding AxisTargetOptions}"
+                                      SelectedItem="{Binding GamepadConfig.ClutchAxisTarget}"
+                                      Margin="0,0,0,8" />
+
+                            <CheckBox Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="3"
+                                      Content="{Binding Loc.GamepadMapDPadLabel}"
+                                      IsChecked="{Binding GamepadConfig.MapDPadToXboxDPad}" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- Rechte Spalte: Live Xbox 360 Ausgabe & freie Tastenbelegung -->
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" Style="{StaticResource DiagnosticCardStyle}" Margin="0,0,0,10">
+                    <StackPanel>
+                        <DockPanel Margin="0,0,0,8">
+                            <TextBlock Text="{Binding Loc.GamepadPreviewTitle}" Style="{StaticResource SectionHeaderTextStyle}" />
+                            <TextBlock DockPanel.Dock="Right"
+                                       Text="{Binding VirtualPressedButtonsSummary}"
+                                       HorizontalAlignment="Right"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource {x:Static SystemColors.AccentColorBrushKey}}" />
+                        </DockPanel>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="10" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="10" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" Background="{DynamicResource SurfaceSubtleBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="8,6">
+                                <StackPanel>
+                                    <TextBlock Text="LEFT STICK X" FontSize="10.5" Style="{StaticResource SubtleLabelTextStyle}" />
+                                    <TextBlock Text="{Binding VirtualLeftStickXNorm, StringFormat={}{0:+0.0;-0.0;0.0}%}" FontSize="16" Style="{StaticResource TabularValueTextStyle}" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Column="2" Background="{DynamicResource SurfaceSubtleBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="8,6">
+                                <StackPanel>
+                                    <TextBlock Text="LEFT TRIGGER (LT)" FontSize="10.5" Style="{StaticResource SubtleLabelTextStyle}" />
+                                    <TextBlock Text="{Binding VirtualLeftTriggerPercent, StringFormat={}{0:0.0}%}" FontSize="16" Style="{StaticResource TabularValueTextStyle}" Margin="0,0,0,4" />
+                                    <ProgressBar Minimum="0" Maximum="100" Value="{Binding VirtualLeftTriggerPercent, Mode=OneWay}" Height="6" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Column="4" Background="{DynamicResource SurfaceSubtleBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="8,6">
+                                <StackPanel>
+                                    <TextBlock Text="RIGHT TRIGGER (RT)" FontSize="10.5" Style="{StaticResource SubtleLabelTextStyle}" />
+                                    <TextBlock Text="{Binding VirtualRightTriggerPercent, StringFormat={}{0:0.0}%}" FontSize="16" Style="{StaticResource TabularValueTextStyle}" Margin="0,0,0,4" />
+                                    <ProgressBar Minimum="0" Maximum="100" Value="{Binding VirtualRightTriggerPercent, Mode=OneWay}" Height="6" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="1" Style="{StaticResource DiagnosticCardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <DockPanel Grid.Row="0" Margin="0,0,0,8">
+                            <TextBlock Text="{Binding Loc.GamepadButtonMappingTitle}" Style="{StaticResource SectionHeaderTextStyle}" VerticalAlignment="Center" />
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Content="{Binding Loc.GamepadPresetDefaultButton}" Command="{Binding ApplyGamepadDefaultPresetCommand}" Padding="10,4" Margin="0,0,6,0" />
+                                <Button Content="{Binding Loc.GamepadClearAllButton}" Command="{Binding ClearGamepadMappingsCommand}" Padding="10,4" />
+                            </StackPanel>
+                        </DockPanel>
+
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding GamepadConfig.ButtonMappings}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{DynamicResource SurfaceSubtleBrush}"
+                                                BorderBrush="{DynamicResource CardBorderBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="4"
+                                                Padding="8,4"
+                                                Margin="0,0,0,4">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="16" />
+                                                    <ColumnDefinition Width="46" />
+                                                    <ColumnDefinition Width="90" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <Ellipse Grid.Column="0" Width="8" Height="8" VerticalAlignment="Center">
+                                                    <Ellipse.Style>
+                                                        <Style TargetType="Ellipse">
+                                                            <Setter Property="Fill" Value="#55808080" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsPressed}" Value="True">
+                                                                    <Setter Property="Fill" Value="{DynamicResource {x:Static SystemColors.AccentColorBrushKey}}" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Ellipse.Style>
+                                                </Ellipse>
+
+                                                <TextBlock Grid.Column="1" Text="{Binding WheelButtonIndex, StringFormat=#{0}}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" Typography.NumeralAlignment="Tabular" />
+                                                <TextBlock Grid.Column="2" Text="{Binding WheelButtonLabel}" VerticalAlignment="Center" FontWeight="SemiBold" />
+                                                <ComboBox Grid.Column="3"
+                                                          ItemsSource="{Binding DataContext.ButtonTargetOptions, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                          SelectedItem="{Binding TargetButton}" />
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

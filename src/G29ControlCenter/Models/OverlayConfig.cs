@@ -80,7 +80,7 @@ public sealed class OverlaySettings : ObservableObject
         get => _scalePercent;
         set
         {
-            if (SetProperty(ref _scalePercent, Math.Clamp(value, 50, 200)))
+            if (SetProperty(ref _scalePercent, Math.Clamp(value, 40, 250)))
             {
                 OnPropertyChanged(nameof(ScaleFactor));
             }

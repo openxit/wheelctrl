@@ -62,10 +62,17 @@ public sealed class LocalizationStrings : ObservableObject
         : "Open-Source Racing Hardware Hub & Telemetrie";
 
     // Top Navigation & Home View
-    public string NavDevicesTitle => En ? "Devices" : "Geräte";
+    public string NavHomeTitle => "Home";
+    public string BackToHomeButton => En ? "← Home" : "← Startseite";
+    public string NavDevicesTitle => En ? "Home" : "Startseite";
     public string NavControlsTitle => En ? "Controls" : "Steuerung";
+    public string NavGamepadTitle => En ? "Virtual Gamepad" : "Virtuelles Gamepad";
     public string NavOverlayTitle => En ? "Stream Overlay" : "Stream-Overlay";
-    public string HomeCardClickHint => En ? "Click card to configure wheel, FFB & pedals" : "Klicken zum Konfigurieren von Lenkrad, FFB & Pedalen";
+    public string HomeEmptyTitle => En ? "No Logitech devices connected" : "Keine Logitech-Geräte verbunden";
+    public string HomeEmptyDesc => En
+        ? "Connect your Logitech G29 via USB and 24V power supply (PS4 switch position), then click Reconnect."
+        : "Schließe dein Logitech G29 per USB und 24V-Netzteil an (Schalter auf PS4) und klicke auf Neu verbinden.";
+    public string HomeCardClickHint => En ? "Click card to configure wheel, virtual gamepad & overlay" : "Klicken für Lenkrad, virtuelles Gamepad & Overlay";
     public string HomeOpenControlsButton => En ? "Configure" : "Konfigurieren";
     public string ProfilePrefix => En ? "Profile:" : "Profil:";
     public string ProfileStandardName => En ? "Standard (900°)" : "Standard (900°)";
@@ -91,8 +98,8 @@ public sealed class LocalizationStrings : ObservableObject
     public string OverlayOpenButton => En ? "Open Desktop Overlay" : "Desktop-Overlay öffnen";
     public string OverlayCloseButton => En ? "Close Desktop Overlay" : "Desktop-Overlay schließen";
     public string OverlayDragHint => En
-        ? "Drag the overlay window anywhere with the mouse. Enable 'Click-Through' to lock it while gaming."
-        : "Fenster beliebig per Maus verschieben. 'Klick-Durchlass' sperrt es während des Spielens.";
+        ? "Drag to move • Hold Ctrl + Drag (or Ctrl + Scroll) to resize (40%–250%). Enable 'Click-Through' to lock while gaming."
+        : "Zum Verschieben ziehen • Strg + Ziehen (oder Strg + Mausrad) für Größe (40%–250%). 'Klick-Durchlass' sperrt im Spiel.";
     public string OverlayBrowserCardTitle => En ? "OBS Browser Source (True Alpha Transparency)" : "OBS Browser-Quelle (echte Alpha-Transparenz)";
     public string OverlayBrowserEnable => En ? "Enable local Browser Source server" : "Lokalen Browser-Source-Server aktivieren";
     public string OverlayCopyUrlButton => En ? "Copy URL" : "URL kopieren";
@@ -196,4 +203,30 @@ public sealed class LocalizationStrings : ObservableObject
     public string ButtonsSectionTitle => En ? "Buttons, D-Pad & H-Shifter (25 Inputs)" : "Tasten, D-Pad & H-Shifter (25 Tasten)";
     public string DPadPrefix => "D-Pad (POV):";
     public string ShifterPrefix => En ? "Shifter Gear:" : "Shifter-Gang:";
+
+    // Virtual Gamepad (Xbox 360 Translator)
+    public string GamepadHeaderTitle => En ? "Virtual Xbox 360 Gamepad (Live Translator)" : "Virtuelles Xbox-360-Gamepad (Live-Übersetzer)";
+    public string GamepadHeaderDesc => En
+        ? "Emulates a native Windows Xbox 360 controller from your G29 so games without steering wheel support recognize it as a real gamepad."
+        : "Emuliert ein echtes Windows-Xbox-360-Gamepad aus deinem G29 – ideal für Spiele ohne Lenkrad-Unterstützung.";
+    public string GamepadEnableToggle => En ? "Enable Virtual Xbox 360 Controller" : "Virtuellen Xbox-360-Controller aktivieren";
+    public string GamepadInstallDriverButton => En ? "Install ViGEmBus Driver (1-Click)" : "ViGEmBus-Treiber installieren (1-Klick)";
+    public string GamepadInstallingDriver => En ? "Installing ViGEmBus..." : "Installiere ViGEmBus...";
+    public string GamepadRecheckDriverButton => En ? "Re-check Driver" : "Treiber prüfen";
+    public string GamepadDriverReady => En ? "Driver: ViGEmBus Ready (Native XInput)" : "Treiber: ViGEmBus bereit (Natives XInput)";
+    public string GamepadDriverMissing => En ? "Driver: ViGEmBus missing (required once for Windows virtual gamepad)" : "Treiber: ViGEmBus fehlt (einmalig für virtuelles Windows-Gamepad nötig)";
+    public string GamepadLatencyTitle => En ? "Live Translation Latency" : "Live-Übersetzungslatenz";
+    public string GamepadAxisMappingTitle => En ? "Steering & Pedal Axis Translation" : "Lenkrad- & Pedal-Achsenübersetzung";
+    public string GamepadSteeringLockLabel => En ? "Steering Lock (Full Stick):" : "Lenkeinschlag (Vollausschlag):";
+    public string GamepadSteeringDeadzoneLabel => En ? "Center Deadzone:" : "Mittel-Totzone:";
+    public string GamepadSteeringLinearityLabel => En ? "Steering Curve:" : "Lenkkurve (Linearität):";
+    public string GamepadInvertSteeringLabel => En ? "Invert Steering (Left/Right)" : "Lenkung invertieren (Links/Rechts)";
+    public string GamepadGasTargetLabel => En ? "Throttle Pedal →" : "Gaspedal →";
+    public string GamepadBrakeTargetLabel => En ? "Brake Pedal →" : "Bremspedal →";
+    public string GamepadClutchTargetLabel => En ? "Clutch Pedal →" : "Kupplungspedal →";
+    public string GamepadMapDPadLabel => En ? "Map Wheel D-Pad → Xbox D-Pad" : "Lenkrad-D-Pad → Xbox-D-Pad";
+    public string GamepadPreviewTitle => En ? "Live Virtual Gamepad Output" : "Live-Ausgabe Virtuelles Gamepad";
+    public string GamepadButtonMappingTitle => En ? "Custom Button Mapping (25 Wheel Inputs → Xbox 360)" : "Freie Tastenbelegung (25 G29-Tasten → Xbox 360)";
+    public string GamepadPresetDefaultButton => En ? "Racing Preset" : "Racing-Standard";
+    public string GamepadClearAllButton => En ? "Clear All" : "Alle leeren";
 }

@@ -77,6 +77,8 @@ public sealed class LogitechG29Service : IWheelHardwareService
     private long _polarityWatchStartTimestamp;
     private bool _polarityWarningActive;
 
+    public event Action<WheelTelemetrySnapshot>? TelemetryUpdated;
+
     public WheelTelemetrySnapshot LatestSnapshot => Volatile.Read(ref _latestSnapshot);
 
     public void Initialize(nint windowHandle)
@@ -878,6 +880,7 @@ public sealed class LogitechG29Service : IWheelHardwareService
         }
 
         Volatile.Write(ref _latestSnapshot, snapshot);
+        TelemetryUpdated?.Invoke(snapshot);
     }
 
     private static double ResolveEffectiveTargetAngle(

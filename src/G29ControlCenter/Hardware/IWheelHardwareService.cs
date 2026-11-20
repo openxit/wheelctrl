@@ -4,6 +4,8 @@ namespace G29ControlCenter.Hardware;
 
 public interface IWheelHardwareService : IDisposable
 {
+    event Action<WheelTelemetrySnapshot>? TelemetryUpdated;
+
     WheelTelemetrySnapshot LatestSnapshot { get; }
 
     void Initialize(nint windowHandle);
