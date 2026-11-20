@@ -1,0 +1,135 @@
+<UserControl x:Class="G29ControlCenter.Controls.VisualGamepadControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Width="420"
+             Height="230">
+    <UserControl.Resources>
+        <Style x:Key="PadButtonStyle" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Background" Value="#252830" />
+            <Setter Property="BorderBrush" Value="#484E5C" />
+            <Setter Property="Foreground" Value="#E6EAF2" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1.5"
+                                CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource {x:Static SystemColors.AccentColorBrushKey}}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="FaceButtonStyle" TargetType="Button" BasedOn="{StaticResource PadButtonStyle}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1.5"
+                                CornerRadius="16">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource {x:Static SystemColors.AccentColorBrushKey}}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <!-- Triggers & Bumpers (Top Row) -->
+        <Grid VerticalAlignment="Top" Margin="34,0,34,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="120" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="120" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Left Trigger + LB -->
+            <StackPanel Grid.Column="0">
+                <Border Height="14" CornerRadius="4" Background="#1A1D24" BorderBrush="#3A3F4B" BorderThickness="1" ClipToBounds="True" Margin="0,0,0,4">
+                    <Grid>
+                        <Rectangle x:Name="LeftTriggerFill" HorizontalAlignment="Left" Width="0" Fill="{DynamicResource {x:Static SystemColors.AccentColorBrushKey}}" />
+                        <TextBlock x:Name="LeftTriggerText" Text="LT" FontSize="9.5" FontWeight="Bold" Foreground="#DCE2EC" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Grid>
+                </Border>
+                <Button x:Name="BtnLB" Content="LB" Height="22" Style="{StaticResource PadButtonStyle}" Tag="LeftShoulder" Click="OnPadButtonClick" />
+            </StackPanel>
+
+            <!-- Right Trigger + RB -->
+            <StackPanel Grid.Column="2">
+                <Border Height="14" CornerRadius="4" Background="#1A1D24" BorderBrush="#3A3F4B" BorderThickness="1" ClipToBounds="True" Margin="0,0,0,4">
+                    <Grid>
+                        <Rectangle x:Name="RightTriggerFill" HorizontalAlignment="Left" Width="0" Fill="{DynamicResource {x:Static SystemColors.AccentColorBrushKey}}" />
+                        <TextBlock x:Name="RightTriggerText" Text="RT" FontSize="9.5" FontWeight="Bold" Foreground="#DCE2EC" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Grid>
+                </Border>
+                <Button x:Name="BtnRB" Content="RB" Height="22" Style="{StaticResource PadButtonStyle}" Tag="RightShoulder" Click="OnPadButtonClick" />
+            </StackPanel>
+        </Grid>
+
+        <!-- Neutral Brand-Free Controller Body -->
+        <Border Margin="14,44,14,8"
+                Background="#1B1E25"
+                BorderBrush="#363B47"
+                BorderThickness="1.5"
+                CornerRadius="38">
+            <Grid Margin="18,12">
+                <!-- Left Analog Stick (Moves live with LeftStickXNorm) -->
+                <Grid HorizontalAlignment="Left" VerticalAlignment="Top" Margin="18,10,0,0" Width="62" Height="62">
+                    <Ellipse Fill="#12141A" Stroke="#3A3F4B" StrokeThickness="1.5" />
+                    <Button x:Name="BtnLS" Width="34" Height="34" Tag="LeftThumb" Click="OnPadButtonClick" Content="LS" Style="{StaticResource FaceButtonStyle}">
+                        <Button.RenderTransform>
+                            <TranslateTransform x:Name="LeftStickTransform" X="0" Y="0" />
+                        </Button.RenderTransform>
+                    </Button>
+                </Grid>
+
+                <!-- D-Pad -->
+                <Grid HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="78,0,0,12" Width="76" Height="76">
+                    <Button x:Name="BtnUp" Content="↑" Width="24" Height="24" VerticalAlignment="Top" HorizontalAlignment="Center" Style="{StaticResource PadButtonStyle}" Tag="DPadUp" Click="OnPadButtonClick" />
+                    <Button x:Name="BtnDown" Content="↓" Width="24" Height="24" VerticalAlignment="Bottom" HorizontalAlignment="Center" Style="{StaticResource PadButtonStyle}" Tag="DPadDown" Click="OnPadButtonClick" />
+                    <Button x:Name="BtnLeft" Content="←" Width="24" Height="24" VerticalAlignment="Center" HorizontalAlignment="Left" Style="{StaticResource PadButtonStyle}" Tag="DPadLeft" Click="OnPadButtonClick" />
+                    <Button x:Name="BtnRight" Content="→" Width="24" Height="24" VerticalAlignment="Center" HorizontalAlignment="Right" Style="{StaticResource PadButtonStyle}" Tag="DPadRight" Click="OnPadButtonClick" />
+                </Grid>
+
+                <!-- Center Back / Start -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,20,0,0">
+                    <Button x:Name="BtnBack" Content="Back" Width="46" Height="22" FontSize="10" Style="{StaticResource PadButtonStyle}" Tag="Back" Click="OnPadButtonClick" Margin="0,0,22,0" />
+                    <Button x:Name="BtnStart" Content="Start" Width="46" Height="22" FontSize="10" Style="{StaticResource PadButtonStyle}" Tag="Start" Click="OnPadButtonClick" />
+                </StackPanel>
+
+                <!-- Right Face Buttons (A/B/X/Y or ✕/○/□/△) -->
+                <Grid HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,16,0" Width="88" Height="88">
+                    <Button x:Name="BtnY" Content="Y" Width="28" Height="28" VerticalAlignment="Top" HorizontalAlignment="Center" Style="{StaticResource FaceButtonStyle}" Tag="Y" Click="OnPadButtonClick" />
+                    <Button x:Name="BtnA" Content="A" Width="28" Height="28" VerticalAlignment="Bottom" HorizontalAlignment="Center" Style="{StaticResource FaceButtonStyle}" Tag="A" Click="OnPadButtonClick" />
+                    <Button x:Name="BtnX" Content="X" Width="28" Height="28" VerticalAlignment="Center" HorizontalAlignment="Left" Style="{StaticResource FaceButtonStyle}" Tag="X" Click="OnPadButtonClick" />
+                    <Button x:Name="BtnB" Content="B" Width="28" Height="28" VerticalAlignment="Center" HorizontalAlignment="Right" Style="{StaticResource FaceButtonStyle}" Tag="B" Click="OnPadButtonClick" />
+                </Grid>
+
+                <!-- Right Analog Stick -->
+                <Grid HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,82,12" Width="56" Height="56">
+                    <Ellipse Fill="#12141A" Stroke="#3A3F4B" StrokeThickness="1.5" />
+                    <Button x:Name="BtnRS" Width="30" Height="30" Content="RS" Tag="RightThumb" Click="OnPadButtonClick" Style="{StaticResource FaceButtonStyle}" />
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

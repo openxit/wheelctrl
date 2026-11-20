@@ -204,12 +204,17 @@ public sealed class LocalizationStrings : ObservableObject
     public string DPadPrefix => "D-Pad (POV):";
     public string ShifterPrefix => En ? "Shifter Gear:" : "Shifter-Gang:";
 
-    // Virtual Gamepad (Xbox 360 Translator)
-    public string GamepadHeaderTitle => En ? "Virtual Xbox 360 Gamepad (Live Translator)" : "Virtuelles Xbox-360-Gamepad (Live-Übersetzer)";
+    // Virtual Gamepad (XInput & DS4-Compatible Translator)
+    public string GamepadHeaderTitle => En ? "Virtual Gamepad (Live Translator)" : "Virtuelles Gamepad (Live-Übersetzer)";
     public string GamepadHeaderDesc => En
-        ? "Emulates a native Windows Xbox 360 controller from your G29 so games without steering wheel support recognize it as a real gamepad."
-        : "Emuliert ein echtes Windows-Xbox-360-Gamepad aus deinem G29 – ideal für Spiele ohne Lenkrad-Unterstützung.";
-    public string GamepadEnableToggle => En ? "Enable Virtual Xbox 360 Controller" : "Virtuellen Xbox-360-Controller aktivieren";
+        ? "Emulates a standard Windows XInput or DS4-compatible gamepad from your G29 for games without steering wheel support."
+        : "Emuliert ein standardisiertes XInput- oder DS4-kompatibles Windows-Gamepad aus deinem G29 – für Spiele ohne Lenkrad-Support.";
+    public string GamepadEnableToggle => En ? "Enable Virtual Gamepad" : "Virtuelles Gamepad aktivieren";
+    public string GamepadTypeLabel => En ? "Controller Mode:" : "Controller-Modus:";
+    public string GamepadTypeXInput => En ? "XInput (Xbox-compatible)" : "XInput (Xbox-kompatibel)";
+    public string GamepadTypeDs4 => En ? "HID / DS4 (PS4-compatible)" : "HID / DS4 (PS4-kompatibel)";
+    public string GamepadVisualAssignLabel => En ? "Selected on controller:" : "Auf Controller gewählt:";
+    public string GamepadAssignFromWheelButton => En ? "Assign G29 Input" : "G29-Taste zuweisen";
     public string GamepadInstallDriverButton => En ? "Install ViGEmBus Driver (1-Click)" : "ViGEmBus-Treiber installieren (1-Klick)";
     public string GamepadInstallingDriver => En ? "Installing ViGEmBus..." : "Installiere ViGEmBus...";
     public string GamepadRecheckDriverButton => En ? "Re-check Driver" : "Treiber prüfen";

@@ -79,6 +79,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private string _gamepadLatencyText = "0.00 ms";
     private double _gamepadProcessingMs;
     private double _gamepadLoopHz = 100.0;
+    private VirtualXboxButtonMask _virtualPressedMask;
+    private VirtualButtonTarget _selectedVisualPadTarget = VirtualButtonTarget.A;
+    private GamepadButtonMappingItem? _selectedWheelInputForVisualTarget;
 
     // Hub-Navigation & Overlay-Status
     private HubSection _activeSection = HubSection.Devices;
@@ -235,6 +238,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         RecheckGamepadDriverCommand = new RelayCommand(RecheckGamepadDriver);
         ApplyGamepadDefaultPresetCommand = new RelayCommand(() => GamepadConfig.ApplyDefaultPreset());
         ClearGamepadMappingsCommand = new RelayCommand(() => GamepadConfig.ClearAllButtonMappings());
+        AssignVisualPadTargetCommand = new RelayCommand(AssignSelectedWheelInputToVisualTarget);
+        _selectedWheelInputForVisualTarget = GamepadConfig.ButtonMappings.FirstOrDefault();
 
         _uiTimer = new DispatcherTimer(DispatcherPriority.Render)
         {
@@ -271,6 +276,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public RelayCommand RecheckGamepadDriverCommand { get; }
     public RelayCommand ApplyGamepadDefaultPresetCommand { get; }
     public RelayCommand ClearGamepadMappingsCommand { get; }
+    public RelayCommand AssignVisualPadTargetCommand { get; }
 
     public HubSection ActiveSection
     {
@@ -568,6 +574,52 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     {
         get => _gamepadLoopHz;
         private set => SetProperty(ref _gamepadLoopHz, value);
+    }
+
+    public VirtualXboxButtonMask VirtualPressedMask
+    {
+        get => _virtualPressedMask;
+        private set => SetProperty(ref _virtualPressedMask, value);
+    }
+
+    public bool IsXInputGamepadMode
+    {
+        get => GamepadConfig.ControllerType == VirtualGamepadType.XInput;
+        set
+        {
+            if (value && GamepadConfig.ControllerType != VirtualGamepadType.XInput)
+            {
+                GamepadConfig.ControllerType = VirtualGamepadType.XInput;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsDs4GamepadMode));
+            }
+        }
+    }
+
+    public bool IsDs4GamepadMode
+    {
+        get => GamepadConfig.ControllerType == VirtualGamepadType.DualShock4;
+        set
+        {
+            if (value && GamepadConfig.ControllerType != VirtualGamepadType.DualShock4)
+            {
+                GamepadConfig.ControllerType = VirtualGamepadType.DualShock4;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsXInputGamepadMode));
+            }
+        }
+    }
+
+    public VirtualButtonTarget SelectedVisualPadTarget
+    {
+        get => _selectedVisualPadTarget;
+        set => SetProperty(ref _selectedVisualPadTarget, value);
+    }
+
+    public GamepadButtonMappingItem? SelectedWheelInputForVisualTarget
+    {
+        get => _selectedWheelInputForVisualTarget;
+        set => SetProperty(ref _selectedWheelInputForVisualTarget, value);
     }
 
     public bool CombinedPedalsWarning
@@ -1121,6 +1173,14 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         _virtualGamepadService.ProcessSnapshot(snapshot);
     }
 
+    private void AssignSelectedWheelInputToVisualTarget()
+    {
+        if (_selectedWheelInputForVisualTarget is not null)
+        {
+            _selectedWheelInputForVisualTarget.TargetButton = _selectedVisualPadTarget;
+        }
+    }
+
     private void RecheckGamepadDriver()
     {
         _gamepadDriverInstallStatus = string.Empty;
@@ -1315,6 +1375,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         VirtualLeftTriggerPercent = Math.Round((gpReport.LeftTrigger / 255.0) * 100.0, 1);
         VirtualRightTriggerPercent = Math.Round((gpReport.RightTrigger / 255.0) * 100.0, 1);
         VirtualPressedButtonsSummary = FormatPressedXboxButtons(gpReport.Buttons);
+        VirtualPressedMask = gpReport.Buttons;
 
         for (int i = 0; i < GamepadConfig.ButtonMappings.Count && i < s.Buttons.Length; i++)
         {

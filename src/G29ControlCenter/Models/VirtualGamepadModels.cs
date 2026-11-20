@@ -4,6 +4,12 @@ using G29ControlCenter.ViewModels;
 
 namespace G29ControlCenter.Models;
 
+public enum VirtualGamepadType
+{
+    XInput = 0,
+    DualShock4 = 1
+}
+
 public enum VirtualGamepadDriverState
 {
     NotChecked = 0,
@@ -106,6 +112,7 @@ public sealed class GamepadButtonMappingItem : ObservableObject
 /// </summary>
 public sealed class VirtualGamepadMappingConfig : ObservableObject
 {
+    private VirtualGamepadType _controllerType = VirtualGamepadType.XInput;
     private int _steeringLockDegrees = 270;
     private double _steeringDeadzonePercent = 1.5;
     private double _steeringLinearity = 1.0;
@@ -132,6 +139,12 @@ public sealed class VirtualGamepadMappingConfig : ObservableObject
     }
 
     public ObservableCollection<GamepadButtonMappingItem> ButtonMappings { get; }
+
+    public VirtualGamepadType ControllerType
+    {
+        get => _controllerType;
+        set => SetProperty(ref _controllerType, value);
+    }
 
     public int SteeringLockDegrees
     {

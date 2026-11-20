@@ -5,13 +5,14 @@ using G29ControlCenter.Models;
 using Nefarius.ViGEm.Client;
 using Nefarius.ViGEm.Client.Exceptions;
 using Nefarius.ViGEm.Client.Targets;
+using Nefarius.ViGEm.Client.Targets.DualShock4;
 using Nefarius.ViGEm.Client.Targets.Xbox360;
 
 namespace G29ControlCenter.Hardware;
 
 /// <summary>
-/// Erzeugt ein echtes virtuelles Xbox-360-Gamepad über ViGEmBus und übersetzt
-/// G29-Telemetrie direkt auf dem 100-Hz-Hardware-Thread mit minimaler Latenz.
+/// Erzeugt ein echtes virtuelles Gamepad (XInput / DualShock 4 kompatibel) über ViGEmBus
+/// und übersetzt G29-Telemetrie direkt auf dem 100-Hz-Hardware-Thread mit minimaler Latenz.
 /// </summary>
 public sealed class VirtualGamepadService : IDisposable
 {
@@ -19,7 +20,9 @@ public sealed class VirtualGamepadService : IDisposable
 
     private readonly object _sync = new();
     private ViGEmClient? _client;
-    private IXbox360Controller? _controller;
+    private IXbox360Controller? _xboxController;
+    private IDualShock4Controller? _ds4Controller;
+    private VirtualGamepadType _activeType;
     private bool _isEnabled;
     private bool _disposed;
 
@@ -126,15 +129,36 @@ public sealed class VirtualGamepadService : IDisposable
             try
             {
                 _client ??= new ViGEmClient();
-                if (_controller is null)
+                VirtualGamepadType requestedType = Config.ControllerType;
+
+                if (_activeType != requestedType)
                 {
-                    _controller = _client.CreateXbox360Controller();
-                    _controller.AutoSubmitReport = false;
-                    _controller.Connect();
+                    DisconnectControllersUnsafe();
                 }
 
+                if (requestedType == VirtualGamepadType.DualShock4)
+                {
+                    if (_ds4Controller is null)
+                    {
+                        _ds4Controller = _client.CreateDualShock4Controller();
+                        _ds4Controller.AutoSubmitReport = false;
+                        _ds4Controller.Connect();
+                    }
+                    _driverMessage = "Virtual DS4-Compatible Gamepad active";
+                }
+                else
+                {
+                    if (_xboxController is null)
+                    {
+                        _xboxController = _client.CreateXbox360Controller();
+                        _xboxController.AutoSubmitReport = false;
+                        _xboxController.Connect();
+                    }
+                    _driverMessage = "Virtual XInput Gamepad active";
+                }
+
+                _activeType = requestedType;
                 _driverState = VirtualGamepadDriverState.Ready;
-                _driverMessage = "Virtual Xbox 360 Controller active";
                 _isEnabled = true;
                 return true;
             }
@@ -168,15 +192,45 @@ public sealed class VirtualGamepadService : IDisposable
         lock (_sync)
         {
             _lastReport = report;
-            if (!_isEnabled || _controller is null || _disposed)
+            if (!_isEnabled || _disposed)
             {
                 return;
             }
 
             try
             {
-                ApplyReportToController(_controller, report);
-                _controller.SubmitReport();
+                if (_activeType != Config.ControllerType && _client is not null)
+                {
+                    DisconnectControllersUnsafe();
+                    if (Config.ControllerType == VirtualGamepadType.DualShock4)
+                    {
+                        _ds4Controller = _client.CreateDualShock4Controller();
+                        _ds4Controller.AutoSubmitReport = false;
+                        _ds4Controller.Connect();
+                    }
+                    else
+                    {
+                        _xboxController = _client.CreateXbox360Controller();
+                        _xboxController.AutoSubmitReport = false;
+                        _xboxController.Connect();
+                    }
+                    _activeType = Config.ControllerType;
+                }
+
+                if (_activeType == VirtualGamepadType.DualShock4 && _ds4Controller is not null)
+                {
+                    ApplyReportToDs4Controller(_ds4Controller, report);
+                    _ds4Controller.SubmitReport();
+                }
+                else if (_xboxController is not null)
+                {
+                    ApplyReportToController(_xboxController, report);
+                    _xboxController.SubmitReport();
+                }
+                else
+                {
+                    return;
+                }
 
                 double elapsedMs = (Stopwatch.GetTimestamp() - startTicks) * 1000.0 / Stopwatch.Frequency;
                 _lastTranslateLatencyMs = elapsedMs;
@@ -266,20 +320,70 @@ public sealed class VirtualGamepadService : IDisposable
         controller.SetButtonState(Xbox360Button.Right, (b & VirtualXboxButtonMask.Right) != 0);
     }
 
+    private static void ApplyReportToDs4Controller(IDualShock4Controller controller, VirtualXbox360Report report)
+    {
+        controller.SetAxisValue(DualShock4Axis.LeftThumbX, ShortToByteAxis(report.LeftStickX));
+        controller.SetAxisValue(DualShock4Axis.LeftThumbY, ShortToByteAxis((short)-Math.Clamp((int)report.LeftStickY, -32767, 32767)));
+        controller.SetAxisValue(DualShock4Axis.RightThumbX, ShortToByteAxis(report.RightStickX));
+        controller.SetAxisValue(DualShock4Axis.RightThumbY, ShortToByteAxis((short)-Math.Clamp((int)report.RightStickY, -32767, 32767)));
+        controller.SetSliderValue(DualShock4Slider.LeftTrigger, report.LeftTrigger);
+        controller.SetSliderValue(DualShock4Slider.RightTrigger, report.RightTrigger);
+
+        VirtualXboxButtonMask b = report.Buttons;
+        controller.SetButtonState(DualShock4Button.Cross, (b & VirtualXboxButtonMask.A) != 0);
+        controller.SetButtonState(DualShock4Button.Circle, (b & VirtualXboxButtonMask.B) != 0);
+        controller.SetButtonState(DualShock4Button.Square, (b & VirtualXboxButtonMask.X) != 0);
+        controller.SetButtonState(DualShock4Button.Triangle, (b & VirtualXboxButtonMask.Y) != 0);
+        controller.SetButtonState(DualShock4Button.ShoulderLeft, (b & VirtualXboxButtonMask.LeftShoulder) != 0);
+        controller.SetButtonState(DualShock4Button.ShoulderRight, (b & VirtualXboxButtonMask.RightShoulder) != 0);
+        controller.SetButtonState(DualShock4Button.Share, (b & VirtualXboxButtonMask.Back) != 0);
+        controller.SetButtonState(DualShock4Button.Options, (b & VirtualXboxButtonMask.Start) != 0);
+        controller.SetButtonState(DualShock4Button.ThumbLeft, (b & VirtualXboxButtonMask.LeftThumb) != 0);
+        controller.SetButtonState(DualShock4Button.ThumbRight, (b & VirtualXboxButtonMask.RightThumb) != 0);
+        controller.SetDPadDirection(ResolveDs4DPad(b));
+    }
+
+    private static byte ShortToByteAxis(short value)
+    {
+        int scaled = ((value + 32768) * 255) / 65535;
+        return (byte)Math.Clamp(scaled, 0, 255);
+    }
+
+    private static DualShock4DPadDirection ResolveDs4DPad(VirtualXboxButtonMask b)
+    {
+        bool up = (b & VirtualXboxButtonMask.Up) != 0;
+        bool down = (b & VirtualXboxButtonMask.Down) != 0;
+        bool left = (b & VirtualXboxButtonMask.Left) != 0;
+        bool right = (b & VirtualXboxButtonMask.Right) != 0;
+
+        if (up && right) return DualShock4DPadDirection.Northeast;
+        if (down && right) return DualShock4DPadDirection.Southeast;
+        if (down && left) return DualShock4DPadDirection.Southwest;
+        if (up && left) return DualShock4DPadDirection.Northwest;
+        if (up) return DualShock4DPadDirection.North;
+        if (right) return DualShock4DPadDirection.East;
+        if (down) return DualShock4DPadDirection.South;
+        if (left) return DualShock4DPadDirection.West;
+        return DualShock4DPadDirection.None;
+    }
+
+    private void DisconnectControllersUnsafe()
+    {
+        if (_xboxController is not null)
+        {
+            try { _xboxController.Disconnect(); } catch { }
+            _xboxController = null;
+        }
+        if (_ds4Controller is not null)
+        {
+            try { _ds4Controller.Disconnect(); } catch { }
+            _ds4Controller = null;
+        }
+    }
+
     private void DisconnectUnsafe()
     {
-        if (_controller is not null)
-        {
-            try
-            {
-                _controller.Disconnect();
-            }
-            catch
-            {
-                // Ignore disconnect errors
-            }
-            _controller = null;
-        }
+        DisconnectControllersUnsafe();
 
         if (_client is not null)
         {

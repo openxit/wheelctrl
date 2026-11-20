@@ -1164,6 +1164,25 @@
                             </Border>
                         </DockPanel>
 
+                        <!-- Controller-Modus: XInput vs. HID / DS4 -->
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="6" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <RadioButton Grid.Column="0"
+                                         GroupName="GamepadTypeGroup"
+                                         Content="{Binding Loc.GamepadTypeXInput}"
+                                         IsChecked="{Binding IsXInputGamepadMode}"
+                                         Style="{StaticResource SegmentedRadioStyle}" />
+                            <RadioButton Grid.Column="2"
+                                         GroupName="GamepadTypeGroup"
+                                         Content="{Binding Loc.GamepadTypeDs4}"
+                                         IsChecked="{Binding IsDs4GamepadMode}"
+                                         Style="{StaticResource SegmentedRadioStyle}" />
+                        </Grid>
+
                         <TextBlock Text="{Binding GamepadDriverStatusText}"
                                    FontSize="11.5"
                                    Style="{StaticResource SubtleLabelTextStyle}"
@@ -1262,6 +1281,25 @@
                                        HorizontalAlignment="Right"
                                        FontWeight="SemiBold"
                                        Foreground="{DynamicResource {x:Static SystemColors.AccentColorBrushKey}}" />
+                        </DockPanel>
+
+                        <controls:VisualGamepadControl HorizontalAlignment="Center"
+                                                       Margin="0,0,0,8"
+                                                       LeftStickXNorm="{Binding VirtualLeftStickXNorm}"
+                                                       LeftTriggerPercent="{Binding VirtualLeftTriggerPercent}"
+                                                       RightTriggerPercent="{Binding VirtualRightTriggerPercent}"
+                                                       PressedMask="{Binding VirtualPressedMask}"
+                                                       IsDs4Mode="{Binding IsDs4GamepadMode}"
+                                                       SelectedTarget="{Binding SelectedVisualPadTarget}" />
+
+                        <!-- Direkt-Zuweisung für die auf dem visuellen Controller gewählte Taste -->
+                        <DockPanel Margin="0,0,0,8">
+                            <TextBlock Text="{Binding Loc.GamepadVisualAssignLabel}" VerticalAlignment="Center" Style="{StaticResource SubtleLabelTextStyle}" Margin="0,0,6,0" />
+                            <TextBlock Text="{Binding SelectedVisualPadTarget}" VerticalAlignment="Center" FontWeight="Bold" Foreground="{DynamicResource {x:Static SystemColors.AccentColorBrushKey}}" Margin="0,0,10,0" />
+                            <Button DockPanel.Dock="Right" Content="{Binding Loc.GamepadAssignFromWheelButton}" Command="{Binding AssignVisualPadTargetCommand}" Padding="10,4" Margin="6,0,0,0" />
+                            <ComboBox ItemsSource="{Binding GamepadConfig.ButtonMappings}"
+                                      SelectedItem="{Binding SelectedWheelInputForVisualTarget}"
+                                      DisplayMemberPath="WheelButtonLabel" />
                         </DockPanel>
 
                         <Grid>
