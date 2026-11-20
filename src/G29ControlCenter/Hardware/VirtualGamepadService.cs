@@ -257,8 +257,22 @@ public sealed class VirtualGamepadService : IDisposable
             Directory.CreateDirectory(tempDir);
             string setupPath = Path.Combine(tempDir, "ViGEmBus_Setup.exe");
 
-            using (var http = new HttpClient { Timeout = TimeSpan.FromSeconds(45) })
+            var assembly = typeof(VirtualGamepadService).Assembly;
+            string? resourceName = assembly.GetManifestResourceNames()
+                .FirstOrDefault(n => n.EndsWith("ViGEmBus_1.22.0_x64_x86_arm64.exe", StringComparison.OrdinalIgnoreCase));
+
+            if (resourceName is not null)
             {
+                await using Stream? resStream = assembly.GetManifestResourceStream(resourceName);
+                if (resStream is not null)
+                {
+                    await using FileStream fs = File.Create(setupPath);
+                    await resStream.CopyToAsync(fs, cancellationToken);
+                }
+            }
+            else
+            {
+                using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(45) };
                 using HttpResponseMessage response = await http.GetAsync(ViGEmBusSetupUrl, cancellationToken);
                 response.EnsureSuccessStatusCode();
                 await using FileStream fs = File.Create(setupPath);

@@ -341,7 +341,7 @@ async function poll() {
     clutchFill.style.height = d.clutch + '%';
     gearBox.textContent = d.gear || 'N';
 
-    const lit = d.rpm < 0.10 ? 0 : Math.min(5, Math.max(1, Math.floor(((d.rpm - 0.10) / 0.90) * 4) + 1));
+    const lit = d.rpm >= 0.90 ? 5 : d.rpm >= 0.75 ? 4 : d.rpm >= 0.55 ? 3 : d.rpm >= 0.35 ? 2 : d.rpm >= 0.15 ? 1 : 0;
     pairs.forEach((p, idx) => {
       const color = idx < lit ? p[2] : 'rgba(120,120,120,0.28)';
       document.getElementById(p[0]).style.background = color;

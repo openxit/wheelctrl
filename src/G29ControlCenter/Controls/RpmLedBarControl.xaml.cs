@@ -42,10 +42,13 @@ public partial class RpmLedBarControl : UserControl
         Brush offBrush = TryFindResource("LedOffBrush") as Brush ?? Brushes.LightGray;
         double rpm = Math.Clamp(NormalizedRpm, 0.0, 1.0);
 
-        // Synchron zu LogiPlayLeds(index, rpm, 0.10f, 1.04f): 5 LED-Paare gleichmäßig bis 100 % (ohne Redline-Aussetzer)
-        int litPairs = rpm < 0.10
-            ? 0
-            : (int)Math.Clamp(Math.Floor(((rpm - 0.10) / (1.00 - 0.10)) * 4.0) + 1.0, 1.0, 5.0);
+        // Exakt synchron zu LogiPlayLeds(index, rpm, 0.15f, 1.12f): Rot erst ab 90 %
+        int litPairs = rpm >= 0.90 ? 5
+            : rpm >= 0.75 ? 4
+            : rpm >= 0.55 ? 3
+            : rpm >= 0.35 ? 2
+            : rpm >= 0.15 ? 1
+            : 0;
 
         SetPair(L1, R1, litPairs >= 1 ? GreenLedBrush : offBrush);
         SetPair(L2, R2, litPairs >= 2 ? GreenLedBrush : offBrush);

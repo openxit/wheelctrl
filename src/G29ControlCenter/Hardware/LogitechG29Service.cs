@@ -563,8 +563,8 @@ public sealed class LogitechG29Service : IWheelHardwareService
 
             if (Math.Abs(rpmNormalized - _lastRpmLedSent) >= 0.01)
             {
-                // rpmRedLine = 1.04f verhindert den SDK-Redline-Blinkmodus bei 100 % und beim Loslassen
-                LogitechNative.LogiPlayLeds(activeIndex, (float)rpmNormalized, 0.10f, 1.04f);
+                // 0.15f..1.12f: Rot erst ab ~90 % (nicht schon bei 70 %), kein Redline-Blinken bei 100 %
+                LogitechNative.LogiPlayLeds(activeIndex, (float)rpmNormalized, 0.15f, 1.12f);
                 _lastRpmLedSent = rpmNormalized;
             }
         }
